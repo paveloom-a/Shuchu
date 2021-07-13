@@ -5,16 +5,20 @@ use fltk::{
 
 /// A struct providing access to the application's constants
 pub struct Constants {
-    pub window_min_width: i32,
-    pub window_min_height: i32,
+    pub window_width: i32,
+    pub window_height: i32,
+    pub focus_pane_height: i32,
+    pub rewards_menubar_height: i32,
 }
 
 impl Constants {
     /// Get the default set of the application's constants
     const fn default() -> Constants {
         Constants {
-            window_min_width: 1000,
-            window_min_height: 600,
+            window_width: 340,
+            window_height: 400,
+            focus_pane_height: 60,
+            rewards_menubar_height: 30,
         }
     }
 }

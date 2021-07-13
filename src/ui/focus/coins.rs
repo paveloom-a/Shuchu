@@ -1,0 +1,66 @@
+use fltk::{
+    button::Button,
+    draw,
+    enums::{Align, Color, FrameType, LabelType, Shortcut},
+    image::SvgImage,
+    prelude::*,
+};
+
+use crate::ui::logic;
+
+pub fn coins() -> Button {
+    let mut coins = Button::default().with_label("99999");
+    coins.set_label_type(LabelType::None);
+    coins.set_frame(FrameType::FlatBox);
+
+    draw_button(&mut coins);
+    coins.draw(draw);
+
+    coins.set_shortcut(Shortcut::from_char('c'));
+    coins.set_callback(|_| {
+        println!("Coins pressed!");
+    });
+    coins.handle(logic::button_handle);
+
+    coins
+}
+
+fn draw<T: WidgetExt>(b: &mut T) {
+    draw::push_clip(b.x(), b.y(), b.w(), b.h());
+    draw_button(b);
+    draw_label(b);
+    draw_image(b);
+    draw::pop_clip();
+}
+
+fn draw_button<T: WidgetExt>(b: &mut T) {
+    let (lw, _) = b.measure_label();
+    if let Some(p) = b.parent() {
+        b.set_pos(p.x() + p.w() - lw - 60, p.y() + 10);
+        b.set_size(lw + 50, p.h() - 20);
+    }
+}
+
+fn draw_label<T: WidgetExt>(b: &mut T) {
+    let color = draw::get_color();
+
+    draw::set_font(draw::font(), 16);
+    draw::set_draw_color(Color::Black);
+    draw::draw_text2(
+        &b.label(),
+        b.x() + 30,
+        b.y(),
+        b.w() - 40,
+        b.h(),
+        Align::Right,
+    );
+
+    draw::set_draw_color(color);
+}
+
+fn draw_image<T: WidgetExt>(b: &mut T) {
+    let mut coins_image =
+        SvgImage::from_data(include_str!("../../../assets/menu/coins.svg")).unwrap();
+    coins_image.scale(24, 24, true, true);
+    coins_image.draw(b.x() + 6, b.y() + 7, 24, 24);
+}
