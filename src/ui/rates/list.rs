@@ -15,8 +15,8 @@ pub fn list() -> SelectBrowser {
         list.set_size(0, p.h() - 20);
     }
 
-    list.add("(15) A reward.");
-    list.add("(10) Another reward.");
+    list.add("5/m");
+    list.add("0.1/s");
     list.select(1);
 
     logic(&mut list);

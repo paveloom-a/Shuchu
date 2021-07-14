@@ -18,5 +18,6 @@ pub fn pane() -> Pack {
     let _list = list();
 
     pane.end();
+    pane.hide();
     pane
 }

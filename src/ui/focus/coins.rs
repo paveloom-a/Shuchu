@@ -1,11 +1,13 @@
 use fltk::{
+    app,
     button::Button,
     draw,
-    enums::{Align, Color, FrameType, LabelType, Shortcut},
+    enums::{Align, Color, Event, FrameType, Key, LabelType, Shortcut},
     image::SvgImage,
     prelude::*,
 };
 
+use crate::ui::app::CONSTANTS;
 use crate::ui::logic;
 
 pub fn coins() -> Button {
@@ -16,11 +18,7 @@ pub fn coins() -> Button {
     draw_button(&mut coins);
     coins.draw(draw);
 
-    coins.set_shortcut(Shortcut::from_char('c'));
-    coins.set_callback(|_| {
-        println!("Coins pressed!");
-    });
-    coins.handle(logic::button_handle);
+    logic(&mut coins);
 
     coins
 }
@@ -35,7 +33,7 @@ fn draw<T: WidgetExt>(b: &mut T) {
 
 fn draw_button<T: WidgetExt>(b: &mut T) {
     let (lw, _) = b.measure_label();
-    if let Some(p) = b.parent() {
+    if let Some(ref p) = b.parent() {
         b.set_pos(p.x() + p.w() - lw - 60, p.y() + 10);
         b.set_size(lw + 50, p.h() - 20);
     }
@@ -63,4 +61,40 @@ fn draw_image<T: WidgetExt>(b: &mut T) {
         SvgImage::from_data(include_str!("../../../assets/menu/coins.svg")).unwrap();
     coins_image.scale(24, 24, true, true);
     coins_image.draw(b.x() + 6, b.y() + 7, 24, 24);
+}
+
+fn logic<T: WidgetBase + ButtonExt + 'static>(c: &mut T) {
+    c.set_shortcut(Shortcut::from_char('c'));
+    c.set_callback(|c| {
+        if let Some(ref p) = c.parent() {
+            if let Some(ref mut w) = p.parent() {
+                if let Some(ref mut re_p) = w.child(1) {
+                    if let Some(ref mut ra_p) = w.child(2) {
+                        if ra_p.visible() {
+                            ra_p.hide();
+                            re_p.show();
+                        } else if re_p.visible() {
+                            w.resize(w.x(), w.y(), w.w(), 10 + CONSTANTS.focus_pane_height + 10);
+                            re_p.hide();
+                        } else {
+                            w.resize(w.x(), w.y(), w.w(), CONSTANTS.window_height);
+                            re_p.show();
+                        }
+                    }
+                }
+            }
+        }
+    });
+    c.handle(|c, ev| {
+        if ev == Event::KeyDown {
+            match app::event_key() {
+                Key::Left => logic::fp_handle_left(c, 1),
+                Key::Right => logic::fp_handle_right(c, 1),
+                Key::Tab => logic::handle_tab(c),
+                _ => logic::handle_selection(c, ev),
+            }
+        } else {
+            logic::handle_selection(c, ev)
+        }
+    });
 }

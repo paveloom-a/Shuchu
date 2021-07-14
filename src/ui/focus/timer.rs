@@ -2,7 +2,7 @@ use fltk::{
     app,
     button::Button,
     draw,
-    enums::{Align, Color, FrameType, LabelType, Shortcut},
+    enums::{Align, Color, Event, FrameType, Key, LabelType, Shortcut},
     image::SvgImage,
     prelude::*,
 };
@@ -35,7 +35,7 @@ fn draw<T: WidgetExt>(b: &mut T) {
 }
 
 fn draw_button<T: WidgetExt>(b: &mut T) {
-    if let Some(p) = b.parent() {
+    if let Some(ref p) = b.parent() {
         b.set_pos(p.x() + 10, p.y() + 10);
         b.set_size(110, p.h() - 20);
     }
@@ -114,7 +114,18 @@ fn logic<T: WidgetBase + ButtonExt + 'static>(timer: &mut T) {
                 t.set_label("00:00:00");
                 true
             }
-            _ => logic::button_handle(t, ev),
+            _ => {
+                if ev == Event::KeyDown {
+                    match app::event_key() {
+                        Key::Left => logic::fp_handle_left(t, 0),
+                        Key::Right => logic::fp_handle_right(t, 0),
+                        Key::Tab => logic::handle_tab(t),
+                        _ => logic::handle_selection(t, ev),
+                    }
+                } else {
+                    logic::handle_selection(t, ev)
+                }
+            }
         }
     });
 }
