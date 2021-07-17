@@ -65,10 +65,10 @@ fn add_button_logic<T: ButtonExt + WidgetBase + 'static>(ab: &mut T) {
             match app::event_key() {
                 Key::Left => logic::rp_handle_left(ab, 0),
                 Key::Right => logic::rp_handle_right(ab, 0),
-                _ => logic::handle_selection(ab, ev),
+                _ => logic::handle_selection(ab, ev, FrameType::FlatBox),
             }
         } else {
-            logic::handle_selection(ab, ev)
+            logic::handle_selection(ab, ev, FrameType::FlatBox)
         }
     });
 }
@@ -83,10 +83,10 @@ fn delete_button_logic<T: ButtonExt + WidgetBase + 'static>(db: &mut T) {
             match app::event_key() {
                 Key::Left => logic::rp_handle_left(db, 1),
                 Key::Right => logic::rp_handle_right(db, 1),
-                _ => logic::handle_selection(db, ev),
+                _ => logic::handle_selection(db, ev, FrameType::FlatBox),
             }
         } else {
-            logic::handle_selection(db, ev)
+            logic::handle_selection(db, ev, FrameType::FlatBox)
         }
     });
 }

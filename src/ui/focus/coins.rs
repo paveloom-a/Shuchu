@@ -77,7 +77,7 @@ fn logic<T: WidgetBase + ButtonExt + 'static>(c: &mut T) {
                             w.resize(w.x(), w.y(), w.w(), 10 + CONSTANTS.focus_pane_height + 10);
                             re_p.hide();
                         } else {
-                            w.resize(w.x(), w.y(), w.w(), CONSTANTS.window_height);
+                            w.resize(w.x(), w.y(), w.w(), CONSTANTS.main_window_height);
                             re_p.show();
                         }
                     }
@@ -91,10 +91,10 @@ fn logic<T: WidgetBase + ButtonExt + 'static>(c: &mut T) {
                 Key::Left => logic::fp_handle_left(c, 1),
                 Key::Right => logic::fp_handle_right(c, 1),
                 Key::Tab => logic::handle_tab(c),
-                _ => logic::handle_selection(c, ev),
+                _ => logic::handle_selection(c, ev, FrameType::FlatBox),
             }
         } else {
-            logic::handle_selection(c, ev)
+            logic::handle_selection(c, ev, FrameType::FlatBox)
         }
     });
 }

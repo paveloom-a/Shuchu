@@ -46,7 +46,13 @@ channels_default_impl! {
     /// A struct providing access to the application's channels
     #[derive(Clone)]
     pub struct Channels {
-        /// Channel 1: Nothing Yet
-        pub nothing: Channel<i32>,
+        /// Channel 1: From Any Window to Main Window
+        pub mw: Channel<i32>,
+        /// Channel 2: From Main Window to Rewards Edit Window
+        pub rewards_edit: Channel<i32>,
+        /// Channel 3: Send Coins To Reward in the Rewards Edit Window
+        pub rewards_coins: Channel<f64>,
+        /// Channel 3: Send Reward (including Coins) from the Rewards Edit Window to Rewards
+        pub rewards_reward: Channel<String>,
     }
 }

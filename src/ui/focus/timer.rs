@@ -120,10 +120,10 @@ fn logic<T: WidgetBase + ButtonExt + 'static>(timer: &mut T) {
                         Key::Left => logic::fp_handle_left(t, 0),
                         Key::Right => logic::fp_handle_right(t, 0),
                         Key::Tab => logic::handle_tab(t),
-                        _ => logic::handle_selection(t, ev),
+                        _ => logic::handle_selection(t, ev, FrameType::FlatBox),
                     }
                 } else {
-                    logic::handle_selection(t, ev)
+                    logic::handle_selection(t, ev, FrameType::FlatBox)
                 }
             }
         }

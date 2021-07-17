@@ -19,9 +19,22 @@ fn main() {
     // 0. App
     let app = ui::app::new();
 
-    // 1. Window
+    // 1. Main Window
     let _window = ui::windows::main(&channels);
 
+    // Hidden Windows
+
+    // 1. Reward Edit Window
+    let rewards_edit = ui::windows::rewards_edit(&channels);
+
     // Start the event loop
-    while app.wait() {}
+    while app.wait() {
+        // Retranslation of signals between windows
+        if let Ok(event) = channels.mw.r.try_recv() {
+            app::handle_main(event).ok();
+        };
+        if let Ok(event) = channels.rewards_edit.r.try_recv() {
+            app::handle(event, &rewards_edit).ok();
+        }
+    }
 }

@@ -10,14 +10,15 @@ pub fn pane() -> Pack {
     if let Some(ref parent) = pane.parent() {
         pane.set_size(
             parent.width() - 20,
-            parent.height() - CONSTANTS.focus_pane_height - CONSTANTS.rewards_menubar_height - 10,
+            parent.height() - CONSTANTS.focus_pane_height - CONSTANTS.rewards_menubar_height,
         );
     }
 
     let _menubar = menubar();
-    let _list = list();
+    let list = list();
 
     pane.end();
+    pane.resizable(list.scroll());
     pane.hide();
     pane
 }

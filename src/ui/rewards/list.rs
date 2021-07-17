@@ -1,15 +1,11 @@
-use fltk::{
-    app,
-    browser::{BrowserType, SelectBrowser},
-    enums::{Event, FrameType, Key},
-    prelude::*,
-};
+use fltk::prelude::*;
 
-pub fn list() -> SelectBrowser {
-    let mut list = SelectBrowser::default();
-    list.set_frame(FrameType::BorderBox);
-    list.set_type(BrowserType::Hold);
-    list.set_text_size(16);
+use crate::channels::Channels;
+use crate::events;
+use crate::ui::widgets::{List, ScrollExt};
+
+pub fn list(channels: &Channels) -> List {
+    let mut list = List::default();
 
     if let Some(ref p) = list.parent() {
         list.set_size(0, p.h() - 20);
@@ -17,51 +13,23 @@ pub fn list() -> SelectBrowser {
 
     list.add("(15) A reward.");
     list.add("(10) Another reward.");
-    list.select(1);
+    list.add("(5) One more reward.");
 
-    logic(&mut list);
+    logic(&mut list, channels);
 
     list
 }
 
-fn logic<T: WidgetBase + BrowserExt>(l: &mut T) {
-    l.handle(|l, ev| match ev {
-        Event::Focus => true,
-        Event::Released => {
-            if l.value() == 0 {
-                l.select(l.size());
-            }
-            true
-        }
-        Event::KeyDown => match app::event_key() {
-            Key::Down => {
-                l.set_type(BrowserType::Select);
-                let i = l.value();
-                if i == l.size() {
-                    l.select(1);
-                } else {
-                    l.select(i + 1);
-                }
+fn logic(l: &mut List, channels: &Channels) {
+    l.handle({
+        let r_reward = channels.rewards_reward.r.clone();
+        move |s, items, bits| match bits {
+            events::ADD_A_REWARD_RECEIVE => r_reward.try_recv().map_or(false, |reward| {
+                items.push(reward);
+                s.expand(items.len() as i32);
                 true
-            }
-            Key::Up => {
-                l.set_type(BrowserType::Select);
-                let i = l.value();
-                if i == 1 {
-                    l.select(l.size());
-                } else {
-                    l.select(i - 1);
-                }
-                true
-            }
+            }),
             _ => false,
-        },
-        Event::KeyUp => {
-            if app::event_key() == Key::Down | Key::Up {
-                l.set_type(BrowserType::Hold);
-            }
-            true
         }
-        _ => false,
     });
 }

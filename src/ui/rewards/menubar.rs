@@ -7,10 +7,12 @@ use fltk::{
     prelude::*,
 };
 
+use crate::channels::Channels;
+use crate::events;
 use crate::ui::app::CONSTANTS;
 use crate::ui::logic;
 
-pub fn menubar() -> Pack {
+pub fn menubar(channels: &Channels) -> Pack {
     let mut menubar = Pack::default().with_size(0, CONSTANTS.rewards_menubar_height);
     menubar.set_type(PackType::Horizontal);
 
@@ -30,7 +32,7 @@ pub fn menubar() -> Pack {
     delete_button.set_frame(FrameType::FlatBox);
 
     menubar_logic(&mut menubar);
-    add_button_logic(&mut add_button);
+    add_button_logic(&mut add_button, channels);
     delete_button_logic(&mut delete_button);
 
     menubar.end();
@@ -55,20 +57,23 @@ fn menubar_logic<T: WidgetBase>(m: &mut T) {
     });
 }
 
-fn add_button_logic<T: ButtonExt + WidgetBase + 'static>(ab: &mut T) {
+fn add_button_logic<T: ButtonExt + WidgetBase + 'static>(ab: &mut T, channels: &Channels) {
     ab.set_shortcut(Shortcut::from_char('a'));
-    ab.set_callback(|_| {
-        println!("Add Pressed!");
+    ab.set_callback({
+        let s = channels.rewards_edit.s.clone();
+        move |_| {
+            s.try_send(events::ADD_A_REWARD_OPEN).ok();
+        }
     });
     ab.handle(|ab, ev| {
         if ev == Event::KeyDown {
             match app::event_key() {
                 Key::Left => logic::rp_handle_left(ab, 0),
                 Key::Right => logic::rp_handle_right(ab, 0),
-                _ => logic::handle_selection(ab, ev),
+                _ => logic::handle_selection(ab, ev, FrameType::FlatBox),
             }
         } else {
-            logic::handle_selection(ab, ev)
+            logic::handle_selection(ab, ev, FrameType::FlatBox)
         }
     });
 }
@@ -83,10 +88,10 @@ fn delete_button_logic<T: ButtonExt + WidgetBase + 'static>(db: &mut T) {
             match app::event_key() {
                 Key::Left => logic::rp_handle_left(db, 1),
                 Key::Right => logic::rp_handle_right(db, 1),
-                _ => logic::handle_selection(db, ev),
+                _ => logic::handle_selection(db, ev, FrameType::FlatBox),
             }
         } else {
-            logic::handle_selection(db, ev)
+            logic::handle_selection(db, ev, FrameType::FlatBox)
         }
     });
 }

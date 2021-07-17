@@ -5,7 +5,7 @@ use fltk::{
 };
 
 /// Handle focus / selection events
-pub fn handle_selection<T: ButtonExt>(b: &mut T, ev: Event) -> bool {
+pub fn handle_selection<T: ButtonExt>(b: &mut T, ev: Event, unselect_box: FrameType) -> bool {
     match ev {
         Event::Focus => {
             if app::event_key_down(Key::Enter) {
@@ -17,8 +17,8 @@ pub fn handle_selection<T: ButtonExt>(b: &mut T, ev: Event) -> bool {
             select(b);
             true
         }
-        Event::Leave | Event::Unfocus => {
-            unselect(b);
+        Event::Leave | Event::Unfocus | Event::Hide => {
+            unselect(b, unselect_box);
             true
         }
         Event::KeyDown => match app::event_key() {
@@ -31,7 +31,7 @@ pub fn handle_selection<T: ButtonExt>(b: &mut T, ev: Event) -> bool {
         Event::KeyUp => match app::event_key() {
             Key::Enter => {
                 b.do_callback();
-                unselect(b);
+                unselect(b, unselect_box);
                 true
             }
             _ => false,
@@ -48,11 +48,11 @@ fn select<T: ButtonExt>(b: &mut T) {
     b.redraw();
 }
 
-fn unselect<T: ButtonExt>(b: &mut T) {
+fn unselect<T: ButtonExt>(b: &mut T, unselect_box: FrameType) {
     b.set_color(Color::BackGround);
-    b.set_frame(FrameType::FlatBox);
+    b.set_frame(unselect_box);
     b.set_selection_color(Color::BackGround);
-    b.set_down_frame(FrameType::FlatBox);
+    b.set_down_frame(unselect_box);
     b.redraw();
 }
 

@@ -14,4 +14,14 @@ macro_rules! events {
     () => {};
 }
 
-events!(START_TIMER, TICK, STOP_TIMER);
+events!(
+    START_TIMER,
+    TICK,
+    STOP_TIMER,
+    ADD_A_REWARD_OPEN,
+    ADD_A_REWARD_SEND_COINS,
+    ADD_A_REWARD_SEND_REWARD,
+    ADD_A_REWARD_RECEIVE,
+    ADD_A_REWARD_RESET_COINS,
+    ADD_A_REWARD_RESET_REWARD
+);
