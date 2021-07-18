@@ -123,7 +123,7 @@ impl List {
             move |s, ev| match ev {
                 Event::Focus => true,
                 Event::Push => handle_push(s, &selected, &items),
-                Event::KeyDown => handle_keydown(s, &selected, &items),
+                Event::KeyDown => handle_key_down(s, &selected, &items),
                 _ => handle_custom_events(s, &mut *items.borrow_mut(), ev.bits()),
             }
         });
@@ -178,7 +178,7 @@ fn handle_push(s: &mut Scroll, selected: &Selected, items: &Items) -> bool {
     true
 }
 
-fn handle_keydown(s: &mut Scroll, selected: &Selected, items: &Items) -> bool {
+fn handle_key_down(s: &mut Scroll, selected: &Selected, items: &Items) -> bool {
     match app::event_key() {
         Key::Up => {
             if *selected.borrow() == 1 {

@@ -11,16 +11,17 @@ use crate::events;
 use crate::ui::logic;
 
 pub fn timer() -> Button {
-    let mut timer = Button::default().with_label("00:00:00");
-    timer.set_label_type(LabelType::None);
-    timer.set_frame(FrameType::FlatBox);
+    let mut t = Button::default().with_label("00:00:00");
+    t.set_label_type(LabelType::None);
+    t.set_frame(FrameType::FlatBox);
+    t.set_tooltip("Start the timer");
 
-    draw_button(&mut timer);
-    timer.draw(draw);
+    draw_button(&mut t);
+    t.draw(draw);
 
-    logic(&mut timer);
+    logic(&mut t);
 
-    timer
+    t
 }
 
 fn draw<T: WidgetExt>(b: &mut T) {
@@ -56,16 +57,15 @@ fn draw_label<T: WidgetExt>(b: &mut T) {
 }
 
 fn draw_image<T: WidgetExt>(b: &mut T) {
-    let mut coins_image =
-        SvgImage::from_data(include_str!("../../../assets/menu/sand-clock.svg")).unwrap();
-    coins_image.scale(24, 24, true, true);
-    coins_image.draw(b.x() + 6, b.y() + 7, 24, 24);
+    let mut ti = SvgImage::from_data(include_str!("../../../assets/menu/sand-clock.svg")).unwrap();
+    ti.scale(24, 24, true, true);
+    ti.draw(b.x() + 6, b.y() + 7, 24, 24);
 }
 
-fn logic<T: WidgetBase + ButtonExt + 'static>(timer: &mut T) {
-    timer.set_shortcut(Shortcut::from_char('f'));
-    timer.set_callback(start);
-    timer.handle({
+fn logic<T: WidgetBase + ButtonExt + 'static>(t: &mut T) {
+    t.set_shortcut(Shortcut::from_char('f'));
+    t.set_callback(start);
+    t.handle({
         let mut counting = false;
         let mut seconds = 0;
         move |t, ev| match ev.bits() {
@@ -126,11 +126,13 @@ fn logic<T: WidgetBase + ButtonExt + 'static>(timer: &mut T) {
 
 fn start<T: WidgetExt + 'static>(b: &mut T) {
     app::handle_main(events::START_TIMER).ok();
+    b.set_tooltip("Stop the timer");
     b.set_callback(stop);
 }
 
 fn stop<T: WidgetExt + 'static>(b: &mut T) {
     app::handle_main(events::STOP_TIMER).ok();
+    b.set_tooltip("Start the timer");
     b.set_callback(start);
 }
 

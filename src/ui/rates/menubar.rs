@@ -11,30 +11,20 @@ use crate::ui::app::CONSTANTS;
 use crate::ui::logic;
 
 pub fn menubar() -> Pack {
-    let mut menubar = Pack::default().with_size(0, CONSTANTS.rewards_menubar_height);
-    menubar.set_type(PackType::Horizontal);
+    let mut m = Pack::default().with_size(0, CONSTANTS.rewards_menubar_height);
+    m.set_type(PackType::Horizontal);
 
-    let mut add_image = SvgImage::from_data(include_str!("../../../assets/menu/plus.svg")).unwrap();
-    add_image.scale(24, 24, true, true);
+    // 1. Add a Rate
+    let _ab = add_button();
 
-    let mut add_button = Button::default().with_size(CONSTANTS.rewards_menubar_height, 0);
-    add_button.set_image(Some(add_image));
-    add_button.set_frame(FrameType::FlatBox);
+    // 2. Delete the Rate
+    let _db = delete_button();
 
-    let mut delete_image =
-        SvgImage::from_data(include_str!("../../../assets/menu/minus.svg")).unwrap();
-    delete_image.scale(24, 24, true, true);
+    m.end();
 
-    let mut delete_button = Button::default().with_size(CONSTANTS.rewards_menubar_height, 0);
-    delete_button.set_image(Some(delete_image));
-    delete_button.set_frame(FrameType::FlatBox);
+    menubar_logic(&mut m);
 
-    menubar_logic(&mut menubar);
-    add_button_logic(&mut add_button);
-    delete_button_logic(&mut delete_button);
-
-    menubar.end();
-    menubar
+    m
 }
 
 fn menubar_logic<T: WidgetBase>(m: &mut T) {
@@ -55,6 +45,20 @@ fn menubar_logic<T: WidgetBase>(m: &mut T) {
     });
 }
 
+fn add_button() -> Button {
+    let mut ai = SvgImage::from_data(include_str!("../../../assets/menu/plus.svg")).unwrap();
+    ai.scale(24, 24, true, true);
+
+    let mut ab = Button::default().with_size(CONSTANTS.rewards_menubar_height, 0);
+    ab.set_image(Some(ai));
+    ab.set_frame(FrameType::FlatBox);
+    ab.set_tooltip("Add a Rate");
+
+    add_button_logic(&mut ab);
+
+    ab
+}
+
 fn add_button_logic<T: ButtonExt + WidgetBase + 'static>(ab: &mut T) {
     ab.set_shortcut(Shortcut::from_char('a'));
     ab.set_callback(|_| {
@@ -71,6 +75,20 @@ fn add_button_logic<T: ButtonExt + WidgetBase + 'static>(ab: &mut T) {
             logic::handle_selection(ab, ev, FrameType::FlatBox)
         }
     });
+}
+
+fn delete_button() -> Button {
+    let mut di = SvgImage::from_data(include_str!("../../../assets/menu/minus.svg")).unwrap();
+    di.scale(24, 24, true, true);
+
+    let mut db = Button::default().with_size(CONSTANTS.rewards_menubar_height, 0);
+    db.set_image(Some(di));
+    db.set_frame(FrameType::FlatBox);
+    db.set_tooltip("Delete the Rate");
+
+    delete_button_logic(&mut db);
+
+    db
 }
 
 fn delete_button_logic<T: ButtonExt + WidgetBase + 'static>(db: &mut T) {

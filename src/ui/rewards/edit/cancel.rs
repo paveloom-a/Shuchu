@@ -4,11 +4,11 @@ use crate::events;
 use crate::ui::logic;
 
 pub fn cancel() -> Button {
-    let mut cancel = Button::default().with_size(80, 0).with_label("Cancel");
+    let mut c = Button::default().with_size(80, 0).with_label("Cancel");
 
-    logic(&mut cancel);
+    logic(&mut c);
 
-    cancel
+    c
 }
 
 fn logic<T: WidgetBase + ButtonExt>(b: &mut T) {

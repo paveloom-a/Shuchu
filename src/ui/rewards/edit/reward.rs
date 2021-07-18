@@ -9,21 +9,21 @@ use crate::events;
 use crate::ui::app::CONSTANTS;
 
 pub fn reward(channels: &Channels) -> Input {
-    let mut reward = Input::new(
+    let mut r = Input::new(
         10,
         70,
         CONSTANTS.rewards_edit_window_width - 20,
         20,
         "Reward:",
     );
-    reward.set_frame(FrameType::BorderBox);
-    reward.set_align(Align::TopLeft);
-    reward.set_label_size(16);
-    reward.set_text_size(16);
+    r.set_frame(FrameType::BorderBox);
+    r.set_align(Align::TopLeft);
+    r.set_label_size(16);
+    r.set_text_size(16);
 
-    logic(&mut reward, channels);
+    logic(&mut r, channels);
 
-    reward
+    r
 }
 
 fn logic<T: WidgetBase + InputExt>(i: &mut T, channels: &Channels) {

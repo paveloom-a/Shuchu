@@ -9,24 +9,23 @@ use super::{arrow, coins, timer};
 use crate::ui::app::CONSTANTS;
 
 pub fn pane() -> Group {
-    let mut pane = Group::default().with_pos(10, 10);
-    pane.set_frame(FrameType::BorderBox);
+    let mut p = Group::default().with_pos(10, 10);
+    p.set_frame(FrameType::BorderBox);
 
-    if let Some(ref parent) = pane.parent() {
-        pane.set_size(parent.width() - 20, CONSTANTS.focus_pane_height);
+    if let Some(ref parent) = p.parent() {
+        p.set_size(parent.width() - 20, CONSTANTS.focus_pane_height);
     }
 
     // The order of the widgets is important
-
     let _timer = timer();
     let _coins = coins();
     let _arrow = arrow();
 
-    pane.end();
+    p.end();
 
-    pane.handle(handle);
+    p.handle(handle);
 
-    pane
+    p
 }
 
 fn handle<T: WidgetExt>(p: &mut T, ev: Event) -> bool {

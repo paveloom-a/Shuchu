@@ -11,16 +11,17 @@ use crate::ui::app::CONSTANTS;
 use crate::ui::logic;
 
 pub fn coins() -> Button {
-    let mut coins = Button::default().with_label("99999");
-    coins.set_label_type(LabelType::None);
-    coins.set_frame(FrameType::FlatBox);
+    let mut c = Button::default().with_label("99999");
+    c.set_label_type(LabelType::None);
+    c.set_frame(FrameType::FlatBox);
+    c.set_tooltip("Hide the Rewards pane");
 
-    draw_button(&mut coins);
-    coins.draw(draw);
+    draw_button(&mut c);
+    c.draw(draw);
 
-    logic(&mut coins);
+    logic(&mut c);
 
-    coins
+    c
 }
 
 fn draw<T: WidgetExt>(b: &mut T) {
@@ -57,28 +58,38 @@ fn draw_label<T: WidgetExt>(b: &mut T) {
 }
 
 fn draw_image<T: WidgetExt>(b: &mut T) {
-    let mut coins_image =
-        SvgImage::from_data(include_str!("../../../assets/menu/coins.svg")).unwrap();
-    coins_image.scale(24, 24, true, true);
-    coins_image.draw(b.x() + 6, b.y() + 7, 24, 24);
+    let mut ci = SvgImage::from_data(include_str!("../../../assets/menu/coins.svg")).unwrap();
+    ci.scale(24, 24, true, true);
+    ci.draw(b.x() + 6, b.y() + 7, 24, 24);
 }
 
 fn logic<T: WidgetBase + ButtonExt + 'static>(c: &mut T) {
     c.set_shortcut(Shortcut::from_char('c'));
     c.set_callback(|c| {
         if let Some(ref p) = c.parent() {
-            if let Some(ref mut w) = p.parent() {
-                if let Some(ref mut re_p) = w.child(1) {
-                    if let Some(ref mut ra_p) = w.child(2) {
-                        if ra_p.visible() {
-                            ra_p.hide();
-                            re_p.show();
-                        } else if re_p.visible() {
-                            w.resize(w.x(), w.y(), w.w(), 10 + CONSTANTS.focus_pane_height + 10);
-                            re_p.hide();
-                        } else {
-                            w.resize(w.x(), w.y(), w.w(), CONSTANTS.main_window_height);
-                            re_p.show();
+            if let Some(ref mut a) = p.child(2) {
+                if let Some(ref mut w) = p.parent() {
+                    if let Some(ref mut re_p) = w.child(1) {
+                        if let Some(ref mut ra_p) = w.child(2) {
+                            if ra_p.visible() {
+                                ra_p.hide();
+                                re_p.show();
+                                c.set_tooltip("Hide the Rewards pane");
+                            } else if re_p.visible() {
+                                w.resize(
+                                    w.x(),
+                                    w.y(),
+                                    w.w(),
+                                    10 + CONSTANTS.focus_pane_height + 10,
+                                );
+                                re_p.hide();
+                                c.set_tooltip("Show the Rewards pane");
+                            } else {
+                                w.resize(w.x(), w.y(), w.w(), CONSTANTS.main_window_height);
+                                re_p.show();
+                                c.set_tooltip("Hide the Rewards pane");
+                            }
+                            a.set_tooltip("Show the Conversion Rates pane");
                         }
                     }
                 }

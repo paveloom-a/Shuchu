@@ -20,12 +20,12 @@ fn main() {
     let app = ui::app::new();
 
     // 1. Main Window
-    let _window = ui::windows::main(&channels);
+    let _w = ui::windows::main(&channels);
 
     // Hidden Windows
 
     // 1. Reward Edit Window
-    let rewards_edit = ui::windows::rewards_edit(&channels);
+    let re_w = ui::windows::rewards_edit(&channels);
 
     // Start the event loop
     while app.wait() {
@@ -34,7 +34,7 @@ fn main() {
             app::handle_main(event).ok();
         };
         if let Ok(event) = channels.rewards_edit.r.try_recv() {
-            app::handle(event, &rewards_edit).ok();
+            app::handle(event, &re_w).ok();
         }
     }
 }

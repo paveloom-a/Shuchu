@@ -8,7 +8,7 @@ use crate::ui::rewards::edit;
 
 /// Create the Rewards Edit Window
 pub fn rewards_edit(channels: &Channels) -> Window {
-    let mut window = Window::new(
+    let mut w = Window::new(
         100,
         100,
         CONSTANTS.rewards_edit_window_width,
@@ -16,23 +16,23 @@ pub fn rewards_edit(channels: &Channels) -> Window {
         "Add a Reward",
     )
     .center_screen();
-    window.set_icon(Some(icon()));
-    window.make_modal(true);
+    w.set_icon(Some(icon()));
+    w.make_modal(true);
 
     // 1. Coins
-    let _coins = edit::coins(channels);
+    let _c = edit::coins(channels);
 
     // 2. Reward
-    let _reward = edit::reward(channels);
+    let _r = edit::reward(channels);
 
     // 3. Buttons
-    let _buttons = edit::buttons();
+    let _bs = edit::buttons();
 
-    window.end();
+    w.end();
 
-    window.handle(handle);
+    w.handle(handle);
 
-    window
+    w
 }
 
 fn handle<T: WidgetBase>(w: &mut T, ev: Event) -> bool {

@@ -5,20 +5,20 @@ use crate::channels::Channels;
 use crate::ui::app::CONSTANTS;
 
 pub fn pane(channels: &Channels) -> Pack {
-    let mut pane = Pack::default().with_pos(10, 10 + CONSTANTS.focus_pane_height + 10);
-    pane.set_spacing(1);
+    let mut p = Pack::default().with_pos(10, 10 + CONSTANTS.focus_pane_height + 10);
+    p.set_spacing(1);
 
-    if let Some(ref parent) = pane.parent() {
-        pane.set_size(
-            parent.width() - 20,
-            parent.height() - CONSTANTS.focus_pane_height - CONSTANTS.rewards_menubar_height,
+    if let Some(ref w) = p.parent() {
+        p.set_size(
+            w.width() - 20,
+            w.height() - CONSTANTS.focus_pane_height - CONSTANTS.rewards_menubar_height,
         );
     }
 
     let _menubar = menubar(channels);
     let list = list(channels);
 
-    pane.resizable(list.scroll());
-    pane.end();
-    pane
+    p.resizable(list.scroll());
+    p.end();
+    p
 }

@@ -10,28 +10,28 @@ use crate::events;
 use crate::ui::app::CONSTANTS;
 
 pub fn coins(channels: &Channels) -> ValueInput {
-    let mut coins = ValueInput::new(
+    let mut c = ValueInput::new(
         10,
         25,
         CONSTANTS.rewards_edit_window_width - 20,
         20,
         "Coins:",
     );
-    coins.set_frame(FrameType::BorderBox);
-    coins.set_align(Align::TopLeft);
-    coins.set_label_size(16);
-    coins.set_text_size(16);
-    coins.set_step(0.0, 5);
-    coins.set_precision(2);
-    coins.set_bounds(0.0, 999_999_999.0);
-    coins.set_range(0.0, 999_999_999.0);
-    coins.set_soft(false);
-    coins.set_value(0.1);
-    coins.set_value(0.0);
+    c.set_frame(FrameType::BorderBox);
+    c.set_align(Align::TopLeft);
+    c.set_label_size(16);
+    c.set_text_size(16);
+    c.set_step(0.0, 5);
+    c.set_precision(2);
+    c.set_bounds(0.0, 999_999_999.0);
+    c.set_range(0.0, 999_999_999.0);
+    c.set_soft(false);
+    c.set_value(0.1);
+    c.set_value(0.0);
 
-    logic(&mut coins, channels);
+    logic(&mut c, channels);
 
-    coins
+    c
 }
 
 fn logic<T: WidgetBase + ValuatorExt>(v: &mut T, channels: &Channels) {

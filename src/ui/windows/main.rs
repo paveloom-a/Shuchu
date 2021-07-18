@@ -9,33 +9,33 @@ use crate::ui::rewards;
 
 /// Create the Main Window
 pub fn main(channels: &Channels) -> Window {
-    let mut window = Window::new(
+    let mut w = Window::new(
         100,
         100,
         CONSTANTS.main_window_width,
         CONSTANTS.main_window_height,
         "Shuchu",
     );
-    window.size_range(
+    w.size_range(
         CONSTANTS.main_window_width,
         CONSTANTS.main_window_height,
         CONSTANTS.main_window_width,
         CONSTANTS.main_window_height + 100,
     );
-    window.set_icon(Some(icon()));
+    w.set_icon(Some(icon()));
 
     // 1. Focus Pane
-    let _focus_pane = focus::pane();
+    let _fp = focus::pane();
 
     // 2. Rewards Pane
-    let rewards_pane = rewards::pane(channels);
+    let re_p = rewards::pane(channels);
 
     // 3. Conversion Rates Pane
-    let _rates_pane = rates::pane();
+    let _ra_p = rates::pane();
 
-    window.resizable(&rewards_pane);
-    window.end();
+    w.resizable(&re_p);
+    w.end();
 
-    window.show();
-    window
+    w.show();
+    w
 }
