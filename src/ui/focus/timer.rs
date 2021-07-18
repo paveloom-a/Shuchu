@@ -6,9 +6,6 @@ use fltk::{
     image::SvgImage,
     prelude::*,
 };
-use std::sync::atomic::{AtomicBool, Ordering};
-
-static REPEAT_TICK: AtomicBool = AtomicBool::new(false);
 
 use crate::events;
 use crate::ui::logic;
@@ -75,9 +72,7 @@ fn logic<T: WidgetBase + ButtonExt + 'static>(timer: &mut T) {
             events::START_TIMER => {
                 if !counting {
                     counting = true;
-                    REPEAT_TICK.store(true, Ordering::Release);
-                    app::add_timeout(1.0, tick);
-                    app::remove_timeout(tick);
+                    app::add_timeout2(1.0, tick);
                 }
                 true
             }
@@ -109,8 +104,7 @@ fn logic<T: WidgetBase + ButtonExt + 'static>(timer: &mut T) {
             events::STOP_TIMER => {
                 counting = false;
                 seconds = 0;
-                REPEAT_TICK.store(false, Ordering::Release);
-                app::remove_timeout(tick);
+                app::remove_timeout2(tick);
                 t.set_label("00:00:00");
                 true
             }
@@ -141,8 +135,6 @@ fn stop<T: WidgetExt + 'static>(b: &mut T) {
 }
 
 fn tick() {
-    if REPEAT_TICK.load(Ordering::Acquire) {
-        app::handle_main(events::TICK).ok();
-        app::repeat_timeout(1.0, tick);
-    }
+    app::handle_main(events::TICK).ok();
+    app::repeat_timeout2(1.0, tick);
 }
