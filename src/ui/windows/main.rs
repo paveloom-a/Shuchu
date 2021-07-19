@@ -25,7 +25,7 @@ pub fn main(channels: &Channels) -> Window {
     w.set_icon(Some(icon()));
 
     // 1. Focus Pane
-    let _fp = focus::pane();
+    let _fp = focus::pane(channels);
 
     // 2. Rewards Pane
     let re_p = rewards::pane(channels);

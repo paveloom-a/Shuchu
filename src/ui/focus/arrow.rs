@@ -1,6 +1,7 @@
 use fltk::{
     app,
     button::Button,
+    draw,
     enums::{Event, FrameType, Key, Shortcut},
     image::SvgImage,
     prelude::*,
@@ -14,29 +15,38 @@ pub fn arrow() -> Button {
     a.set_frame(FrameType::FlatBox);
     a.set_tooltip("Show the Conversion Rates pane");
 
-    draw_frame(&mut a);
-    a.draw(draw_frame);
-
-    let mut ai = SvgImage::from_data(include_str!("../../../assets/menu/arrow.svg")).unwrap();
-    ai.scale(48, 40, true, true);
-    a.set_image(Some(ai));
+    resize_frame(&mut a);
+    a.draw(draw);
 
     logic(&mut a);
 
     a
 }
 
-fn draw_frame<T: WidgetExt>(f: &mut T) {
+fn draw<T: WidgetExt>(f: &mut T) {
+    resize_frame(f);
+    draw::push_clip(f.x(), f.y(), f.w(), f.h());
+    draw_image(f);
+    draw::pop_clip();
+}
+
+fn resize_frame<T: WidgetExt>(f: &mut T) {
     if let Some(ref p) = f.parent() {
         if let Some(ref lw) = p.child(0) {
             if let Some(ref rw) = p.child(1) {
                 let lx = lw.x() + lw.w();
-                let w = 48 + 15;
+                let w = 48 + 14;
                 f.set_pos(lx + (rw.x() - lx - w) / 2, p.y() + 15);
                 f.set_size(w, 30);
             }
         }
     }
+}
+
+fn draw_image<T: WidgetExt>(f: &mut T) {
+    let mut ai = SvgImage::from_data(include_str!("../../../assets/menu/arrow.svg")).unwrap();
+    ai.scale(f.w() - 14, f.h(), true, true);
+    ai.draw(f.x() + 7, f.y(), f.w() - 14, f.h());
 }
 
 fn logic<T: WidgetBase + ButtonExt>(a: &mut T) {

@@ -1,6 +1,6 @@
 use fltk::{
     app,
-    enums::{Align, CallbackTrigger, FrameType},
+    enums::{Align, CallbackTrigger, Event, FrameType},
     prelude::*,
     valuator::ValueInput,
 };
@@ -40,19 +40,32 @@ fn logic<T: WidgetBase + ValuatorExt>(v: &mut T, channels: &Channels) {
         v.set_value(v.clamp(v.value()));
     });
     v.handle({
-        let s = channels.rewards_coins.s.clone();
-        move |v, ev| match ev.bits() {
-            events::ADD_A_REWARD_SEND_COINS => {
-                s.try_send(v.value()).ok();
-                app::handle_main(events::ADD_A_REWARD_SEND_REWARD).ok();
+        let s_coins = channels.rewards_send_coins.s.clone();
+        let r_coins = channels.rewards_receive_coins.r.clone();
+        move |v, ev| match ev {
+            Event::Hide => {
                 v.set_value(0.0);
                 true
             }
-            events::ADD_A_REWARD_RESET_COINS => {
-                v.set_value(0.0);
-                true
-            }
-            _ => false,
+            _ => match ev.bits() {
+                events::ADD_A_REWARD_SEND_COINS => {
+                    s_coins.try_send(v.value()).ok();
+                    app::handle_main(events::ADD_A_REWARD_SEND_REWARD).ok();
+                    v.set_value(0.0);
+                    true
+                }
+                events::EDIT_A_REWARD_SEND_COINS => {
+                    s_coins.try_send(v.value()).ok();
+                    app::handle_main(events::EDIT_A_REWARD_SEND_REWARD).ok();
+                    v.set_value(0.0);
+                    true
+                }
+                events::EDIT_A_REWARD_RECEIVE_COINS => r_coins.try_recv().map_or(false, |coins| {
+                    v.set_value(coins);
+                    true
+                }),
+                _ => false,
+            },
         }
     })
 }

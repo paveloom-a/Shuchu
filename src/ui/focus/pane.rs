@@ -6,9 +6,10 @@ use fltk::{
 };
 
 use super::{arrow, coins, timer};
+use crate::channels::Channels;
 use crate::ui::app::CONSTANTS;
 
-pub fn pane() -> Group {
+pub fn pane(channels: &Channels) -> Group {
     let mut p = Group::default().with_pos(10, 10);
     p.set_frame(FrameType::BorderBox);
 
@@ -18,7 +19,7 @@ pub fn pane() -> Group {
 
     // The order of the widgets is important
     let _timer = timer();
-    let _coins = coins();
+    let _coins = coins(channels);
     let _arrow = arrow();
 
     p.end();

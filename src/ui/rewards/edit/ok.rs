@@ -11,14 +11,25 @@ pub fn ok() -> Button {
     ok
 }
 
-fn logic<T: WidgetBase + ButtonExt>(b: &mut T) {
-    b.set_callback(|b| {
-        app::handle_main(events::ADD_A_REWARD_SEND_COINS).ok();
-        if let Some(ref p) = b.parent() {
-            if let Some(ref mut w) = p.parent() {
-                w.hide();
-            }
+fn logic<T: WidgetBase + ButtonExt + 'static>(b: &mut T) {
+    b.set_callback(add_callback);
+    b.handle(|b, ev| match ev.bits() {
+        events::OK_BUTTON_SET_TO_ADD => {
+            b.set_callback(add_callback);
+            true
         }
+        events::OK_BUTTON_SET_TO_EDIT => {
+            b.set_callback(edit_callback);
+            true
+        }
+        _ => logic::handle_selection(b, ev, FrameType::BorderBox),
     });
-    b.handle(|o, ev| logic::handle_selection(o, ev, FrameType::BorderBox));
+}
+
+fn add_callback<T: WidgetBase>(_: &mut T) {
+    app::handle_main(events::ADD_A_REWARD_SEND_COINS).ok();
+}
+
+fn edit_callback<T: WidgetBase>(_: &mut T) {
+    app::handle_main(events::EDIT_A_REWARD_SEND_COINS).ok();
 }

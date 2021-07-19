@@ -11,6 +11,7 @@ pub fn list() -> List {
 
     l.add("5/m");
     l.add("0.1/s");
+    l.select(1);
 
     l
 }

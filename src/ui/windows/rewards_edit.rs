@@ -1,4 +1,5 @@
-use fltk::{enums::Event, prelude::*, window::Window};
+use fltk::app;
+use fltk::{prelude::*, window::Window};
 
 use super::icon;
 use crate::channels::Channels;
@@ -30,17 +31,36 @@ pub fn rewards_edit(channels: &Channels) -> Window {
 
     w.end();
 
-    w.handle(handle);
+    logic(&mut w, channels);
 
     w
 }
 
-fn handle<T: WidgetBase>(w: &mut T, ev: Event) -> bool {
-    match ev.bits() {
-        events::ADD_A_REWARD_OPEN => {
-            w.show();
-            true
+fn logic<T: WidgetBase>(w: &mut T, channels: &Channels) {
+    w.handle({
+        let r_item = channels.rewards_receive_item.r.clone();
+        let s_coins = channels.rewards_receive_coins.s.clone();
+        let s_reward = channels.rewards_receive_reward.s.clone();
+        move |w, ev| match ev.bits() {
+            events::ADD_A_REWARD_OPEN => {
+                w.show();
+                true
+            }
+            events::EDIT_A_REWARD_OPEN => {
+                w.show();
+                if let Ok(item) = r_item.try_recv() {
+                    if let Some(rb_i) = item.find(')') {
+                        if let Ok(coins) = item[1..rb_i].parse::<f64>() {
+                            s_coins.try_send(coins).ok();
+                            app::handle_main(events::EDIT_A_REWARD_RECEIVE_COINS).ok();
+                            s_reward.try_send(item[(rb_i + 2)..].to_string()).ok();
+                            app::handle_main(events::EDIT_A_REWARD_RECEIVE_REWARD).ok();
+                        }
+                    }
+                }
+                true
+            }
+            _ => false,
         }
-        _ => false,
-    }
+    })
 }

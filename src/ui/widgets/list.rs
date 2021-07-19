@@ -7,11 +7,8 @@ use fltk::{
 };
 use std::{cell::RefCell, rc::Rc};
 
-type Selected = Rc<RefCell<i32>>;
-type Items = Rc<RefCell<Vec<String>>>;
-
 pub trait ScrollExt: GroupExt {
-    fn expand(&mut self, n: i32) {
+    fn resize_list(&mut self, n: i32) {
         if let Some(ref mut l) = self.child(0) {
             l.resize(self.x() + 1, self.y() + 1, self.w() - 2, n * 20);
             self.redraw();
@@ -20,6 +17,9 @@ pub trait ScrollExt: GroupExt {
 }
 
 impl ScrollExt for Scroll {}
+
+type Selected = Rc<RefCell<i32>>;
+type Items = Rc<RefCell<Vec<String>>>;
 
 pub struct List {
     scroll: Scroll,
@@ -44,11 +44,11 @@ impl List {
         let mut w = List {
             scroll,
             list,
-            selected: Selected::new(RefCell::new(1)),
+            selected: Selected::default(),
             items: Items::default(),
         };
         w.draw();
-        w.handle(|_, _, _| false);
+        w.handle(|_, _, _, _| false);
         w
     }
 
@@ -72,7 +72,13 @@ impl List {
 
     pub fn add(&mut self, s: &'static str) {
         self.items.borrow_mut().push(String::from(s));
-        self.scroll.expand(self.items.borrow().len() as i32);
+        self.scroll.resize_list(self.items.borrow().len() as i32);
+    }
+
+    pub fn select(&mut self, idx: i32) {
+        if idx >= 0 {
+            *self.selected.borrow_mut() = idx;
+        }
     }
 
     fn draw(&mut self) {
@@ -115,7 +121,7 @@ impl List {
 
     pub fn handle<F: 'static>(&mut self, handle_custom_events: F)
     where
-        F: Fn(&mut Scroll, &mut Vec<String>, i32) -> bool,
+        F: Fn(&mut Scroll, &mut i32, &mut Vec<String>, i32) -> bool,
     {
         self.scroll.handle({
             let selected = Rc::clone(&self.selected);
@@ -124,7 +130,12 @@ impl List {
                 Event::Focus => true,
                 Event::Push => handle_push(s, &selected, &items),
                 Event::KeyDown => handle_key_down(s, &selected, &items),
-                _ => handle_custom_events(s, &mut *items.borrow_mut(), ev.bits()),
+                _ => handle_custom_events(
+                    s,
+                    &mut *selected.borrow_mut(),
+                    &mut *items.borrow_mut(),
+                    ev.bits(),
+                ),
             }
         });
     }
@@ -181,7 +192,7 @@ fn handle_push(s: &mut Scroll, selected: &Selected, items: &Items) -> bool {
 fn handle_key_down(s: &mut Scroll, selected: &Selected, items: &Items) -> bool {
     match app::event_key() {
         Key::Up => {
-            if *selected.borrow() == 1 {
+            if *selected.borrow() == 0 || *selected.borrow() == 1 {
                 *selected.borrow_mut() = items.borrow().len() as i32;
             } else {
                 *selected.borrow_mut() -= 1;

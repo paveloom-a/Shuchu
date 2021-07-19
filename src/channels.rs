@@ -51,8 +51,14 @@ channels_default_impl! {
         /// Channel 2: From Main Window to Rewards Edit Window
         pub rewards_edit: Channel<i32>,
         /// Channel 3: Send Coins To Reward in the Rewards Edit Window
-        pub rewards_coins: Channel<f64>,
-        /// Channel 3: Send Reward (including Coins) from the Rewards Edit Window to Rewards
-        pub rewards_reward: Channel<String>,
+        pub rewards_send_coins: Channel<f64>,
+        /// Channel 4: Send an Item from the Rewards Edit Window to Rewards
+        pub rewards_send_item: Channel<String>,
+        /// Channel 5: Receive an Item from the Rewards
+        pub rewards_receive_item: Channel<String>,
+        /// Channel 6: Receive Coins from an Item
+        pub rewards_receive_coins: Channel<f64>,
+        /// Channel 7: Receive a Reward from an Item
+        pub rewards_receive_reward: Channel<String>,
     }
 }

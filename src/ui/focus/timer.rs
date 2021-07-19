@@ -16,7 +16,11 @@ pub fn timer() -> Button {
     t.set_frame(FrameType::FlatBox);
     t.set_tooltip("Start the timer");
 
-    draw_button(&mut t);
+    if let Some(ref p) = t.parent() {
+        t.set_pos(p.x() + 10, p.y() + 10);
+        t.set_size(110, p.h() - 20);
+    }
+
     t.draw(draw);
 
     logic(&mut t);
@@ -26,17 +30,9 @@ pub fn timer() -> Button {
 
 fn draw<T: WidgetExt>(b: &mut T) {
     draw::push_clip(b.x(), b.y(), b.w(), b.h());
-    draw_button(b);
     draw_label(b);
     draw_image(b);
     draw::pop_clip();
-}
-
-fn draw_button<T: WidgetExt>(b: &mut T) {
-    if let Some(ref p) = b.parent() {
-        b.set_pos(p.x() + 10, p.y() + 10);
-        b.set_size(110, p.h() - 20);
-    }
 }
 
 fn draw_label<T: WidgetExt>(b: &mut T) {
@@ -47,7 +43,7 @@ fn draw_label<T: WidgetExt>(b: &mut T) {
     draw::draw_text2(
         &b.label(),
         b.x() + 32,
-        b.y(),
+        b.y() + 1,
         b.w() - 40,
         b.h(),
         Align::Right,
@@ -59,7 +55,7 @@ fn draw_label<T: WidgetExt>(b: &mut T) {
 fn draw_image<T: WidgetExt>(b: &mut T) {
     let mut ti = SvgImage::from_data(include_str!("../../../assets/menu/sand-clock.svg")).unwrap();
     ti.scale(24, 24, true, true);
-    ti.draw(b.x() + 6, b.y() + 7, 24, 24);
+    ti.draw(b.x() + 6, b.y() + 8, 24, 24);
 }
 
 fn logic<T: WidgetBase + ButtonExt + 'static>(t: &mut T) {

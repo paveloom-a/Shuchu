@@ -2,6 +2,7 @@ use fltk::{
     app,
     button::Button,
     enums::{Event, FrameType, Key, Shortcut},
+    frame::Frame,
     group::{Pack, PackType},
     image::SvgImage,
     prelude::*,
@@ -21,6 +22,15 @@ pub fn menubar(channels: &Channels) -> Pack {
 
     // 2. Delete the Reward
     let _db = delete_button();
+
+    // 3. Edit the Reward
+    let _eb = edit_button();
+
+    // 4. Divider
+    let _d = divider();
+
+    // 5. Spend Coins for the Reward
+    let _sb = spend_button();
 
     m.end();
 
@@ -67,18 +77,16 @@ fn add_button_logic<T: ButtonExt + WidgetBase + 'static>(ab: &mut T, channels: &
         let s = channels.rewards_edit.s.clone();
         move |_| {
             s.try_send(events::ADD_A_REWARD_OPEN).ok();
+            s.try_send(events::OK_BUTTON_SET_TO_ADD).ok();
         }
     });
-    ab.handle(|ab, ev| {
-        if ev == Event::KeyDown {
-            match app::event_key() {
-                Key::Left => logic::rp_handle_left(ab, 0),
-                Key::Right => logic::rp_handle_right(ab, 0),
-                _ => logic::handle_selection(ab, ev, FrameType::FlatBox),
-            }
-        } else {
-            logic::handle_selection(ab, ev, FrameType::FlatBox)
-        }
+    ab.handle(|ab, ev| match ev {
+        Event::KeyDown => match app::event_key() {
+            Key::Left => logic::rp_handle_left(ab, 0),
+            Key::Right => logic::rp_handle_right(ab, 0),
+            _ => logic::handle_selection(ab, ev, FrameType::FlatBox),
+        },
+        _ => logic::handle_selection(ab, ev, FrameType::FlatBox),
     });
 }
 
@@ -99,17 +107,84 @@ fn delete_button() -> Button {
 fn delete_button_logic<T: ButtonExt + WidgetBase + 'static>(db: &mut T) {
     db.set_shortcut(Shortcut::from_char('d'));
     db.set_callback(|_| {
-        println!("Delete Pressed!");
+        app::handle_main(events::DELETE_A_REWARD).ok();
     });
-    db.handle(|db, ev| {
-        if ev == Event::KeyDown {
-            match app::event_key() {
-                Key::Left => logic::rp_handle_left(db, 1),
-                Key::Right => logic::rp_handle_right(db, 1),
-                _ => logic::handle_selection(db, ev, FrameType::FlatBox),
-            }
-        } else {
-            logic::handle_selection(db, ev, FrameType::FlatBox)
+    db.handle(|db, ev| match ev {
+        Event::KeyDown => match app::event_key() {
+            Key::Left => logic::rp_handle_left(db, 1),
+            Key::Right => logic::rp_handle_right(db, 1),
+            _ => logic::handle_selection(db, ev, FrameType::FlatBox),
+        },
+        _ => logic::handle_selection(db, ev, FrameType::FlatBox),
+    });
+}
+
+fn edit_button() -> Button {
+    let mut ei = SvgImage::from_data(include_str!("../../../assets/menu/pencil.svg")).unwrap();
+    ei.scale(24, 24, true, true);
+
+    let mut eb = Button::default().with_size(CONSTANTS.rewards_menubar_height, 0);
+    eb.set_image(Some(ei));
+    eb.set_frame(FrameType::FlatBox);
+    eb.set_tooltip("Edit the Reward");
+
+    edit_button_logic(&mut eb);
+
+    eb
+}
+
+fn edit_button_logic<T: ButtonExt + WidgetBase + 'static>(eb: &mut T) {
+    eb.set_shortcut(Shortcut::from_char('e'));
+    eb.set_callback({
+        move |_| {
+            app::handle_main(events::EDIT_A_REWARD_SEND_ITEM).ok();
         }
+    });
+    eb.handle(|eb, ev| match ev {
+        Event::KeyDown => match app::event_key() {
+            Key::Left => logic::rp_handle_left(eb, 2),
+            Key::Right => logic::rp_handle_right(eb, 2),
+            _ => logic::handle_selection(eb, ev, FrameType::FlatBox),
+        },
+        _ => logic::handle_selection(eb, ev, FrameType::FlatBox),
+    });
+}
+
+fn divider() -> Frame {
+    let mut di = SvgImage::from_data(include_str!("../../../assets/menu/divider.svg")).unwrap();
+    di.scale(8, 24, true, true);
+
+    let mut d = Frame::default().with_size(10, 0);
+    d.set_image(Some(di));
+
+    d
+}
+
+fn spend_button() -> Button {
+    let mut si = SvgImage::from_data(include_str!("../../../assets/menu/insert-coin.svg")).unwrap();
+    si.scale(24, 24, true, true);
+
+    let mut sb = Button::default().with_size(CONSTANTS.rewards_menubar_height, 0);
+    sb.set_image(Some(si));
+    sb.set_frame(FrameType::FlatBox);
+    sb.set_tooltip("Spend Coins for the Reward");
+
+    spend_button_logic(&mut sb);
+
+    sb
+}
+
+fn spend_button_logic<T: ButtonExt + WidgetBase + 'static>(sb: &mut T) {
+    sb.set_shortcut(Shortcut::from_char('s'));
+    sb.set_callback(|_| {
+        app::handle_main(events::SPEND_COINS_SEND_TOTAL).ok();
+    });
+    sb.handle(|sb, ev| match ev {
+        Event::KeyDown => match app::event_key() {
+            Key::Left => logic::rp_handle_left(sb, 2),
+            Key::Right => logic::rp_handle_right(sb, 2),
+            _ => logic::handle_selection(sb, ev, FrameType::FlatBox),
+        },
+        _ => logic::handle_selection(sb, ev, FrameType::FlatBox),
     });
 }
