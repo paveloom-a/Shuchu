@@ -13,6 +13,7 @@ use crate::ui::logic;
 pub fn arrow() -> Button {
     let mut a = Button::default();
     a.set_frame(FrameType::FlatBox);
+    a.set_down_frame(FrameType::DownBox);
     a.set_tooltip("Show the Conversion Rates pane");
 
     resize_frame(&mut a);
@@ -89,9 +90,9 @@ fn logic<T: WidgetBase + ButtonExt>(a: &mut T) {
                 Key::Left => logic::fp_handle_left(a, 2),
                 Key::Right => logic::fp_handle_right(a, 2),
                 Key::Tab => logic::handle_tab(a),
-                _ => logic::handle_selection(a, ev, unselect_box),
+                _ => logic::handle_active_selection(a, ev, unselect_box),
             },
-            _ => logic::handle_selection(a, ev, unselect_box),
+            _ => logic::handle_active_selection(a, ev, unselect_box),
         }
     });
 }

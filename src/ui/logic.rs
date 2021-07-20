@@ -4,17 +4,24 @@ use fltk::{
     prelude::*,
 };
 
+const ACTIVE_SELECTION_COLOR: u32 = 0xE5_F3_FF;
+const INACTIVE_SELECTION_COLOR: u32 = 0xF5_FA_FE;
+
 /// Handle focus / selection events
-pub fn handle_selection<T: ButtonExt>(b: &mut T, ev: Event, unselect_box: FrameType) -> bool {
+pub fn handle_active_selection<T: ButtonExt>(
+    b: &mut T,
+    ev: Event,
+    unselect_box: FrameType,
+) -> bool {
     match ev {
         Event::Focus => {
             if app::event_key_down(Key::Enter) {
-                select(b);
+                select_active(b);
             }
             true
         }
         Event::Enter => {
-            select(b);
+            select_active(b);
             true
         }
         Event::Leave | Event::Unfocus | Event::Hide => {
@@ -23,7 +30,7 @@ pub fn handle_selection<T: ButtonExt>(b: &mut T, ev: Event, unselect_box: FrameT
         }
         Event::KeyDown => match app::event_key() {
             Key::Enter => {
-                select(b);
+                select_active(b);
                 true
             }
             _ => false,
@@ -40,20 +47,82 @@ pub fn handle_selection<T: ButtonExt>(b: &mut T, ev: Event, unselect_box: FrameT
     }
 }
 
-fn select<T: ButtonExt>(b: &mut T) {
-    b.set_color(Color::from_hex(0xE5_F3_FF));
+pub fn handle_inactive_selection<T: ButtonExt>(
+    b: &mut T,
+    ev: Event,
+    unselect_box: FrameType,
+) -> bool {
+    match ev {
+        Event::Focus => {
+            if app::event_key_down(Key::Enter) {
+                select_inactive(b);
+            }
+            true
+        }
+        Event::Enter => {
+            select_inactive(b);
+            true
+        }
+        Event::Leave | Event::Unfocus | Event::Hide => {
+            unselect(b, unselect_box);
+            true
+        }
+        Event::KeyDown => match app::event_key() {
+            Key::Enter => {
+                select_inactive(b);
+                true
+            }
+            _ => false,
+        },
+        Event::KeyUp => match app::event_key() {
+            Key::Enter => {
+                unselect(b, unselect_box);
+                true
+            }
+            _ => false,
+        },
+        _ => false,
+    }
+}
+
+pub fn handle_selection<T: ButtonExt>(
+    b: &mut T,
+    ev: Event,
+    unselect_box: FrameType,
+    lock: bool,
+) -> bool {
+    if lock {
+        handle_inactive_selection(b, ev, unselect_box)
+    } else {
+        handle_active_selection(b, ev, unselect_box)
+    }
+}
+
+fn select<T: ButtonExt>(b: &mut T, hex: u32) {
+    b.set_color(Color::from_hex(hex));
     b.set_frame(FrameType::BorderBox);
-    b.set_selection_color(Color::from_hex(0xE5_F3_FF));
-    b.set_down_frame(FrameType::DownBox);
     b.redraw();
+}
+
+pub fn select_active<T: ButtonExt>(b: &mut T) {
+    select(b, ACTIVE_SELECTION_COLOR);
+}
+
+pub fn select_inactive<T: ButtonExt>(b: &mut T) {
+    select(b, INACTIVE_SELECTION_COLOR);
 }
 
 fn unselect<T: ButtonExt>(b: &mut T, unselect_box: FrameType) {
     b.set_color(Color::BackGround);
     b.set_frame(unselect_box);
-    b.set_selection_color(Color::BackGround);
-    b.set_down_frame(unselect_box);
     b.redraw();
+}
+
+pub fn mouse_hovering_widget<T: WidgetBase>(b: &mut T) -> bool {
+    app::event_x() >= b.x()
+        && app::event_x() <= b.x() + b.w()
+        && app::event_y() >= b.y()
+        && app::event_y() <= b.y() + b.h()
 }
 
 /// Handle Left events for the buttons in the Focus pane

@@ -5,6 +5,3 @@ mod menubar;
 mod pane;
 
 pub use pane::pane;
-
-use list::list;
-use menubar::menubar;

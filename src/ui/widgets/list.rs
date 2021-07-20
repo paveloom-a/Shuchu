@@ -18,8 +18,8 @@ pub trait ScrollExt: GroupExt {
 
 impl ScrollExt for Scroll {}
 
-type Selected = Rc<RefCell<i32>>;
-type Items = Rc<RefCell<Vec<String>>>;
+pub type Selected = Rc<RefCell<i32>>;
+pub type Items = Rc<RefCell<Vec<String>>>;
 
 pub struct List {
     scroll: Scroll,
@@ -48,7 +48,7 @@ impl List {
             items: Items::default(),
         };
         w.draw();
-        w.handle(|_, _, _, _| false);
+        w.handle(|_, _, _| {}, |_, _, _| {}, |_, _, _, _| false);
         w
     }
 
@@ -119,29 +119,41 @@ impl List {
         });
     }
 
-    pub fn handle<F: 'static>(&mut self, handle_custom_events: F)
-    where
-        F: Fn(&mut Scroll, &mut i32, &mut Vec<String>, i32) -> bool,
+    pub fn handle<A: 'static, B: 'static, C: 'static>(
+        &mut self,
+        handle_push: A,
+        handle_key_down: B,
+        handle_custom_events: C,
+    ) where
+        A: Fn(&mut Scroll, &Selected, &Items),
+        B: Fn(&mut Scroll, &Selected, &Items),
+        C: Fn(&mut Scroll, &Selected, &Items, i32) -> bool,
     {
         self.scroll.handle({
             let selected = Rc::clone(&self.selected);
             let items = Rc::clone(&self.items);
             move |s, ev| match ev {
                 Event::Focus => true,
-                Event::Push => handle_push(s, &selected, &items),
-                Event::KeyDown => handle_key_down(s, &selected, &items),
-                _ => handle_custom_events(
-                    s,
-                    &mut *selected.borrow_mut(),
-                    &mut *items.borrow_mut(),
-                    ev.bits(),
-                ),
+                Event::Push => {
+                    handle_push_default(s, &selected, &items);
+                    handle_push(s, &selected, &items);
+                    true
+                }
+                Event::KeyDown => {
+                    if handle_key_down_default(s, &selected, &items) {
+                        handle_key_down(s, &selected, &items);
+                        true
+                    } else {
+                        false
+                    }
+                }
+                _ => handle_custom_events(s, &selected, &items, ev.bits()),
             }
         });
     }
 }
 
-fn handle_push(s: &mut Scroll, selected: &Selected, items: &Items) -> bool {
+fn handle_push_default(s: &mut Scroll, selected: &Selected, items: &Items) {
     s.take_focus().ok();
 
     if let Some(l) = s.child(0) {
@@ -150,23 +162,8 @@ fn handle_push(s: &mut Scroll, selected: &Selected, items: &Items) -> bool {
         let y = app::event_y();
         let i_max = items.borrow().len() as i32;
 
-        if l.h() < s.h() - 20 {
-            for i in 0..i_max {
-                if y >= s.y() + i * 20 - ys as i32 && y <= s.y() + (i + 1) * 20 - ys {
-                    if *selected.borrow() != i + 1 {
-                        *selected.borrow_mut() = i + 1;
-                        s.redraw();
-                    }
-                    empty_space_click = false;
-                    break;
-                }
-            }
-        } else {
-            let x = app::event_x();
-
-            if x >= s.x() + s.w() - 17 {
-                empty_space_click = false;
-            } else {
+        if i_max > 0 {
+            if l.h() < s.h() - 20 {
                 for i in 0..i_max {
                     if y >= s.y() + i * 20 - ys as i32 && y <= s.y() + (i + 1) * 20 - ys {
                         if *selected.borrow() != i + 1 {
@@ -177,19 +174,34 @@ fn handle_push(s: &mut Scroll, selected: &Selected, items: &Items) -> bool {
                         break;
                     }
                 }
+            } else {
+                let x = app::event_x();
+
+                if x >= s.x() + s.w() - 17 {
+                    empty_space_click = false;
+                } else {
+                    for i in 0..i_max {
+                        if y >= s.y() + i * 20 - ys as i32 && y <= s.y() + (i + 1) * 20 - ys {
+                            if *selected.borrow() != i + 1 {
+                                *selected.borrow_mut() = i + 1;
+                                s.redraw();
+                            }
+                            empty_space_click = false;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if empty_space_click && *selected.borrow() != i_max {
+                *selected.borrow_mut() = i_max;
+                s.redraw();
             }
         }
-
-        if empty_space_click && *selected.borrow() != i_max {
-            *selected.borrow_mut() = i_max;
-            s.redraw();
-        }
     }
-
-    true
 }
 
-fn handle_key_down(s: &mut Scroll, selected: &Selected, items: &Items) -> bool {
+fn handle_key_down_default(s: &mut Scroll, selected: &Selected, items: &Items) -> bool {
     match app::event_key() {
         Key::Up => {
             if *selected.borrow() == 0 || *selected.borrow() == 1 {

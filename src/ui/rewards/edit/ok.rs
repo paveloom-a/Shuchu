@@ -5,6 +5,7 @@ use crate::ui::logic;
 
 pub fn ok() -> Button {
     let mut ok = Button::default().with_size(80, 0).with_label("OK");
+    ok.set_down_frame(FrameType::DownBox);
 
     logic(&mut ok);
 
@@ -22,7 +23,7 @@ fn logic<T: WidgetBase + ButtonExt + 'static>(b: &mut T) {
             b.set_callback(edit_callback);
             true
         }
-        _ => logic::handle_selection(b, ev, FrameType::BorderBox),
+        _ => logic::handle_active_selection(b, ev, FrameType::BorderBox),
     });
 }
 

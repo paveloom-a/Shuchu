@@ -15,8 +15,8 @@ pub fn pane(channels: &Channels) -> Pack {
         );
     }
 
-    let _menubar = menubar(channels);
-    let list = list(channels);
+    let _menubar = menubar::new(channels);
+    let list = list::new(channels);
 
     p.resizable(list.scroll());
     p.end();

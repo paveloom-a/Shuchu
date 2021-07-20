@@ -14,6 +14,7 @@ pub fn timer() -> Button {
     let mut t = Button::default().with_label("00:00:00");
     t.set_label_type(LabelType::None);
     t.set_frame(FrameType::FlatBox);
+    t.set_down_frame(FrameType::DownBox);
     t.set_tooltip("Start the timer");
 
     if let Some(ref p) = t.parent() {
@@ -110,10 +111,10 @@ fn logic<T: WidgetBase + ButtonExt + 'static>(t: &mut T) {
                         Key::Left => logic::fp_handle_left(t, 0),
                         Key::Right => logic::fp_handle_right(t, 0),
                         Key::Tab => logic::handle_tab(t),
-                        _ => logic::handle_selection(t, ev, FrameType::FlatBox),
+                        _ => logic::handle_active_selection(t, ev, FrameType::FlatBox),
                     }
                 } else {
-                    logic::handle_selection(t, ev, FrameType::FlatBox)
+                    logic::handle_active_selection(t, ev, FrameType::FlatBox)
                 }
             }
         }

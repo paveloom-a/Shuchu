@@ -1,3 +1,3 @@
 mod list;
 
-pub use list::{List, ScrollExt};
+pub use list::{Items, List, ScrollExt, Selected};

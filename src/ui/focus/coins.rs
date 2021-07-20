@@ -16,6 +16,7 @@ pub fn coins(channels: &Channels) -> Button {
     let mut c = Button::default().with_label("99999");
     c.set_label_type(LabelType::None);
     c.set_frame(FrameType::FlatBox);
+    c.set_down_frame(FrameType::DownBox);
     c.set_tooltip("Hide the Rewards pane");
 
     resize_button(&mut c);
@@ -99,29 +100,39 @@ fn logic<T: WidgetBase + ButtonExt + 'static>(c: &mut T, channels: &Channels) {
         }
     });
     c.handle({
-        let s_coins = channels.rewards_send_coins.s.clone();
         let r_coins = channels.rewards_receive_coins.r.clone();
         move |c, ev| match ev {
             Event::KeyDown => match app::event_key() {
                 Key::Left => logic::fp_handle_left(c, 1),
                 Key::Right => logic::fp_handle_right(c, 1),
                 Key::Tab => logic::handle_tab(c),
-                _ => logic::handle_selection(c, ev, FrameType::FlatBox),
+                _ => logic::handle_active_selection(c, ev, FrameType::FlatBox),
             },
             _ => match ev.bits() {
-                events::SPEND_COINS_SEND_TOTAL => c.label().parse::<f64>().map_or(false, |coins| {
-                    s_coins.try_send(coins).ok();
-                    app::handle_main(events::SPEND_COINS_RECEIVE_TOTAL).ok();
-                    true
+                events::SPEND_COINS_RECEIVE_PRICE => r_coins.try_recv().map_or(false, |price| {
+                    c.label().parse::<f64>().map_or(false, |coins| {
+                        let diff = ((coins - price) * 100.0).round() / 100.0;
+                        c.set_label(&diff.to_string());
+                        app::handle_main(events::DELETE_A_REWARD).ok();
+                        if let Some(ref mut p) = c.parent() {
+                            p.redraw();
+                        }
+                        true
+                    })
                 }),
-                events::SPEND_COINS_RECEIVE_DIFF => r_coins.try_recv().map_or(false, |coins| {
-                    c.set_label(&coins.to_string());
-                    if let Some(ref mut p) = c.parent() {
-                        p.redraw();
-                    }
-                    true
-                }),
-                _ => logic::handle_selection(c, ev, FrameType::FlatBox),
+                events::CHECK_AFFORDABILITY_RECEIVE_PRICE => {
+                    r_coins.try_recv().map_or(false, |price| {
+                        c.label().parse::<f64>().map_or(false, |coins| {
+                            if price <= coins {
+                                app::handle_main(events::UNLOCK_THE_SPEND_BUTTON).ok();
+                            } else {
+                                app::handle_main(events::LOCK_THE_SPEND_BUTTON).ok();
+                            }
+                            true
+                        })
+                    })
+                }
+                _ => logic::handle_active_selection(c, ev, FrameType::FlatBox),
             },
         }
     });
