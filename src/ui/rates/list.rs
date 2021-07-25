@@ -1,6 +1,6 @@
 use fltk::prelude::*;
 
-use crate::ui::widgets::List;
+use crate::ui::widgets::list::List;
 
 pub fn list() -> List {
     let mut l = List::default();

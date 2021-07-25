@@ -12,6 +12,7 @@ pub struct Constants {
     pub rewards_menubar_height: i32,
     pub rewards_edit_window_width: i32,
     pub rewards_edit_window_height: i32,
+    pub scrollbar_width: i32,
 }
 
 impl Constants {
@@ -24,6 +25,7 @@ impl Constants {
             rewards_menubar_height: 30,
             rewards_edit_window_width: 320,
             rewards_edit_window_height: 140,
+            scrollbar_width: 17,
         }
     }
 }
