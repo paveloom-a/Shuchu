@@ -15,6 +15,10 @@ pub fn ok() -> Button {
 fn logic<T: WidgetBase + ButtonExt + 'static>(b: &mut T) {
     b.set_callback(add_callback);
     b.handle(|b, ev| match ev.bits() {
+        events::OK_BUTTON_DO_CALLBACK => {
+            b.do_callback();
+            true
+        }
         events::OK_BUTTON_SET_TO_ADD => {
             b.set_callback(add_callback);
             true

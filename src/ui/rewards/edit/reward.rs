@@ -1,5 +1,6 @@
 use fltk::{
-    enums::{Align, Event, FrameType},
+    app,
+    enums::{Align, Event, FrameType, Key},
     input::Input,
     prelude::*,
 };
@@ -33,6 +34,15 @@ fn logic<T: WidgetBase + InputExt>(i: &mut T, channels: &Channels) {
         let s_item = channels.rewards_send_item.s.clone();
         let s_mw = channels.mw.s.clone();
         move |i, ev| match ev {
+            Event::KeyDown => app::event_key() == Key::Enter,
+            Event::KeyUp => {
+                if app::event_key() == Key::Enter {
+                    app::handle_main(events::OK_BUTTON_DO_CALLBACK).ok();
+                    true
+                } else {
+                    false
+                }
+            }
             Event::Hide => {
                 i.set_value("");
                 true

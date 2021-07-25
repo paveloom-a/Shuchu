@@ -1,6 +1,6 @@
 use fltk::{
     app,
-    enums::{Align, CallbackTrigger, Event, FrameType},
+    enums::{Align, CallbackTrigger, Event, FrameType, Key},
     prelude::*,
     valuator::ValueInput,
 };
@@ -43,6 +43,15 @@ fn logic<T: WidgetBase + ValuatorExt>(v: &mut T, channels: &Channels) {
         let s_coins = channels.rewards_send_coins.s.clone();
         let r_coins = channels.rewards_receive_coins.r.clone();
         move |v, ev| match ev {
+            Event::KeyDown => app::event_key() == Key::Enter,
+            Event::KeyUp => {
+                if app::event_key() == Key::Enter {
+                    app::handle_main(events::OK_BUTTON_DO_CALLBACK).ok();
+                    true
+                } else {
+                    false
+                }
+            }
             Event::Hide => {
                 v.set_value(0.0);
                 true
