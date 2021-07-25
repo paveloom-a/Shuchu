@@ -7,7 +7,7 @@ use fltk::{
     prelude::*,
 };
 
-use crate::ui::app::CONSTANTS;
+use crate::events;
 use crate::ui::logic;
 
 pub fn arrow() -> Button {
@@ -63,16 +63,11 @@ fn logic<T: WidgetBase + ButtonExt>(a: &mut T) {
                                 ra_p.show();
                                 a.set_tooltip("Hide the Conversion Rates pane");
                             } else if ra_p.visible() {
-                                w.resize(
-                                    w.x(),
-                                    w.y(),
-                                    w.w(),
-                                    10 + CONSTANTS.focus_pane_height + 10,
-                                );
+                                app::handle_main(events::MAIN_WINDOW_HIDE_THE_PANE).ok();
                                 ra_p.hide();
                                 a.set_tooltip("Show the Conversion Rates pane");
                             } else {
-                                w.resize(w.x(), w.y(), w.w(), CONSTANTS.main_window_height);
+                                app::handle_main(events::MAIN_WINDOW_SHOW_THE_PANE).ok();
                                 ra_p.show();
                                 a.set_tooltip("Hide the Conversion Rates pane");
                             }

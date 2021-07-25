@@ -9,7 +9,6 @@ use fltk::{
 
 use crate::channels::Channels;
 use crate::events;
-use crate::ui::app::CONSTANTS;
 use crate::ui::logic;
 
 pub fn coins(channels: &Channels) -> Button {
@@ -79,16 +78,11 @@ fn logic<T: WidgetBase + ButtonExt + 'static>(c: &mut T, channels: &Channels) {
                                 re_p.show();
                                 c.set_tooltip("Hide the Rewards pane");
                             } else if re_p.visible() {
-                                w.resize(
-                                    w.x(),
-                                    w.y(),
-                                    w.w(),
-                                    10 + CONSTANTS.focus_pane_height + 10,
-                                );
+                                app::handle_main(events::MAIN_WINDOW_HIDE_THE_PANE).ok();
                                 re_p.hide();
                                 c.set_tooltip("Show the Rewards pane");
                             } else {
-                                w.resize(w.x(), w.y(), w.w(), CONSTANTS.main_window_height);
+                                app::handle_main(events::MAIN_WINDOW_SHOW_THE_PANE).ok();
                                 re_p.show();
                                 c.set_tooltip("Hide the Rewards pane");
                             }

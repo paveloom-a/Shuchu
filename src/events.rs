@@ -15,6 +15,8 @@ macro_rules! events {
 }
 
 events!(
+    MAIN_WINDOW_HIDE_THE_PANE,
+    MAIN_WINDOW_SHOW_THE_PANE,
     START_TIMER,
     TICK,
     STOP_TIMER,
