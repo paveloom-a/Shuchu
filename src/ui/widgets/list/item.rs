@@ -72,6 +72,16 @@ impl Item {
         &self.frame
     }
 
+    /// Get the y coordinate of the item
+    pub fn y(&self) -> i32 {
+        self.frame.y()
+    }
+
+    /// Get the height of the item
+    pub fn h(&self) -> i32 {
+        self.frame.h()
+    }
+
     fn string(&self) -> Ref<String> {
         self.string.borrow()
     }

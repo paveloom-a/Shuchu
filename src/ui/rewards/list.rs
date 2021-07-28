@@ -7,13 +7,16 @@ use fltk::{
 
 use crate::channels::Channels;
 use crate::events;
+use crate::ui::app::CONSTANTS;
 use crate::ui::widgets::list::{Holder, Items, List, Selected};
 
 pub fn new(channels: &Channels) -> List {
     let mut l = List::default();
 
+    // If this list is a child of the Rewards pane
     if let Some(ref p) = l.parent() {
-        l.set_size(0, p.h() - 20);
+        // Set the list's height to everything except the Menubar's height
+        l.set_size(0, p.h() - CONSTANTS.rewards_menubar_height);
     }
 
     l.add("(15) A reward.");

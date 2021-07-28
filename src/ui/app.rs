@@ -20,7 +20,9 @@ impl Constants {
     const fn default() -> Constants {
         Constants {
             main_window_width: 340,
-            main_window_height: 300,
+            // These 3 pixels are the 1px spacing in Rewards / Rates panes and
+            // 1px top and bottom borders of the Scroll widget in the custom List widget
+            main_window_height: 300 + 3,
             focus_pane_height: 60,
             rewards_menubar_height: 30,
             rewards_edit_window_width: 320,

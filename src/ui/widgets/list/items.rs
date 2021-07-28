@@ -1,3 +1,4 @@
+use fltk::prelude::*;
 use std::{
     cell::{Ref, RefCell, RefMut},
     rc::Rc,
@@ -57,6 +58,20 @@ impl Items {
                 self.index_mut(i).unselect();
             }
         }
+    }
+
+    /// Return `true` if the item with the specified index is partially or completely hidden
+    pub fn hidden(&self, index: usize) -> bool {
+        let item = self.index(index);
+        // Get the Pack in the custom List widget
+        item.frame().parent().map_or(false, |ref p| {
+            // Get the Scroll in the custom List widget
+            p.parent().map_or(false, |ref s| {
+                // Return `true` if
+                item.y() < s.y() // The top border is hidden, or
+                    || item.y() + item.h() > s.y() + s.h() // The bottom border is hidden
+            })
+        })
     }
 
     pub fn remove(&self, index: usize) {

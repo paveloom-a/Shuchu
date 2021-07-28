@@ -13,8 +13,10 @@ pub fn pane(channels: &Channels) -> Group {
     let mut p = Group::default().with_pos(10, 10);
     p.set_frame(FrameType::BorderBox);
 
-    if let Some(ref parent) = p.parent() {
-        p.set_size(parent.width() - 20, CONSTANTS.focus_pane_height);
+    // If this pane is a child of the Main Window
+    if let Some(ref w) = p.parent() {
+        // Set the size, excluding the margins
+        p.set_size(w.width() - 20, CONSTANTS.focus_pane_height);
     }
 
     // The order of the widgets is important
