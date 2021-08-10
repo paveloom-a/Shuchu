@@ -145,8 +145,6 @@ fn handle_custom_events(
                 // Send it to the Rewards Edit window
                 s_item.try_send(string).ok();
                 s_re.try_send(events::EDIT_THE_REWARD_OPEN).ok();
-                // Set the Rewards Edit window to the Edit mode
-                s_re.try_send(events::OK_BUTTON_SET_TO_EDIT).ok();
             }
             true
         }

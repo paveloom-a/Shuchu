@@ -27,12 +27,12 @@ pub fn add_button(channels: &Channels) -> Button {
 
 /// Set a callback and a handler for the add button
 fn logic<T: ButtonExt + WidgetBase + 'static>(ab: &mut T, channels: &Channels) {
+    // Open the Rewards Edit window on push, set to add a new reward
     ab.set_callback({
         // Send signals to the Rewards Edit window
         let s = channels.rewards_edit.s.clone();
         move |_| {
             s.try_send(events::ADD_A_REWARD_OPEN).ok();
-            s.try_send(events::OK_BUTTON_SET_TO_ADD).ok();
         }
     });
     // Handle the shortcut and focus / selection events

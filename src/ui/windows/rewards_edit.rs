@@ -56,12 +56,18 @@ fn logic<T: WidgetBase>(w: &mut T, channels: &Channels) {
             events::ADD_A_REWARD_OPEN => {
                 w.set_label("Add a Reward");
                 w.show();
+                // Set the OK button's callback to 'Add a reward' (this is done after the window
+                // is shown, so that the OK button is able to receive it)
+                app::handle_main(events::OK_BUTTON_SET_TO_ADD).ok();
                 true
             }
             // 'Edit the reward' event
             events::EDIT_THE_REWARD_OPEN => {
                 w.set_label("Edit the Reward");
                 w.show();
+                // Set the OK button's callback to 'Edit a reward' (this is done after the window
+                // is shown, so that the OK button is able to receive it)
+                app::handle_main(events::OK_BUTTON_SET_TO_EDIT).ok();
                 // Get the item
                 if let Ok(item) = r_item.try_recv() {
                     // Get the price and the text
