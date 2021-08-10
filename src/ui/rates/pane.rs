@@ -20,15 +20,15 @@ pub fn pane() -> Pack {
     }
 
     // Initialize the widgets
-    let _menubar = menubar();
-    let list = list();
+    let _menubar = menubar::new();
+    let list = list::new();
 
     p.end();
 
     // The list's Scroll is handling the resizing
     p.resizable(list.scroll());
 
-    // This pane is hidden by default. Pressing the arrow button will bring it up
+    // This pane is hidden by default. Pressing the Arrow button will bring it up
     p.hide();
 
     p

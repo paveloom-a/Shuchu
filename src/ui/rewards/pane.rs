@@ -20,10 +20,15 @@ pub fn pane(channels: &Channels) -> Pack {
         );
     }
 
+    // Initialize the widgets
     let _menubar = menubar::new(channels);
     let list = list::new(channels);
 
-    p.resizable(list.scroll());
+    // This pane is shown by default. Pressing the Coins button will hide it
     p.end();
+
+    // The list's Scroll is handling the resizing
+    p.resizable(list.scroll());
+
     p
 }

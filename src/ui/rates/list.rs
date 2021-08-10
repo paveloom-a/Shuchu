@@ -6,7 +6,7 @@ use crate::ui::constants::REWARDS_MENUBAR_HEIGHT;
 use crate::ui::widgets::list::List;
 
 /// Initialize the list
-pub fn list() -> List {
+pub fn new() -> List {
     let mut l = List::default();
 
     // If this list is a child of the Rates pane
