@@ -1,0 +1,33 @@
+[package]
+name = "shuchu"
+version = "0.1.0"
+authors = ["paveloom"]
+edition = "2018"
+description = "Whoa! What's that?!"
+documentation = "https://docs.rs/shuchu"
+readme = "README.md"
+homepage = "https://paveloom-a.github.io/Shuchu"
+repository = "https://github.com/paveloom-a/Shuchu"
+license-file = "LICENSE.md"
+keywords = ["productivity", "focus", "timer", "rewards", "life"]
+categories = ["graphics"]
+
+[package.metadata.bundle]
+name = "Shuchu"
+identifier = "io.github.paveloom.shuchu"
+icon = ["assets/shuchu-64.png"]
+resources = ["assets"]
+copyright = "Copyright (c) Pavel Sobolev 2021."
+category = "public.app-category.productivity"
+
+[profile.dev]
+panic = 'abort'
+
+[profile.release]
+lto = true
+codegen-units = 1
+panic = 'abort'
+
+[dependencies]
+fltk = { version = "=1.1.10", features = ["fltk-bundled", "use-ninja"] }
+crossbeam-channel = {version = "~0.5.1"}
