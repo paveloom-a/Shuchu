@@ -1,4 +1,5 @@
-//! The add button opens the [Rewards Edit](super::super::edit) window, set to add a new item.
+//! Add Button opens the [Rewards Edit](mod@crate::ui::windows::rewards_edit) window, set to
+//! add a new item.
 
 use fltk::{button::Button, image::SvgImage, prelude::*};
 

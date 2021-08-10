@@ -1,4 +1,4 @@
-//! The add button opens the Rates Edit window, set to add a new item.
+//! Add Button opens the Rates Edit window, set to add a new item.
 
 use fltk::{button::Button, image::SvgImage, prelude::*};
 

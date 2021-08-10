@@ -1,4 +1,4 @@
-//! The delete button deletes the selected item in the [Rewards](super::super)' List.
+//! Delete Button deletes the selected item in the [Rewards](super::super)' List.
 
 use fltk::{app, button::Button, image::SvgImage, prelude::*};
 

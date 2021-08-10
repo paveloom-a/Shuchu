@@ -1,21 +1,16 @@
-//! Rewards Edit window provides a way to add / edit items in the [Rewards](super::super::rewards)
-//! list.
-//!
-//! This secondary window is called by the 'Add a Reward' and 'Edit the Reward' buttons in the
-//! Rewards' Menubar.
+//! Window initializer. Reexported as the main module.
 
 use fltk::app;
 use fltk::{prelude::*, window::Window};
 
-use super::icon;
+use super::{super::icon, buttons, coins, reward};
 use crate::channels::Channels;
 use crate::events;
 use crate::ui::constants::{REWARDS_EDIT_WINDOW_HEIGHT, REWARDS_EDIT_WINDOW_WIDTH};
 use crate::ui::logic;
-use crate::ui::rewards::edit;
 
 /// Initialize the Rewards Edit Window
-pub fn rewards_edit(channels: &Channels) -> Window {
+pub fn new(channels: &Channels) -> Window {
     let mut w = Window::new(
         100,
         100,
@@ -29,13 +24,13 @@ pub fn rewards_edit(channels: &Channels) -> Window {
     w.make_modal(true);
 
     // 1. Coins
-    let _c = edit::coins(channels);
+    let _c = coins(channels);
 
     // 2. Reward
-    let _r = edit::reward(channels);
+    let _r = reward(channels);
 
     // 3. Buttons
-    let _bs = edit::buttons();
+    let _bs = buttons();
 
     w.end();
 

@@ -1,4 +1,4 @@
-//! The menubar initializer.
+//! Menubar initializer.
 
 use fltk::{
     app,

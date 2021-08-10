@@ -1,5 +1,5 @@
-//! The edit button opens the [Rewards Edit](super::super::edit)
-//! window, set to edit the selected item.
+//! Edit Button opens the [Rewards Edit](mod@crate::ui::windows::rewards_edit) window, set to
+//! edit the selected item.
 
 use fltk::{app, button::Button, image::SvgImage, prelude::*};
 

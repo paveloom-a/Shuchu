@@ -1,4 +1,4 @@
-//! The delete button deletes the selected item in the [Rates](super::super)' List.
+//! Delete Button deletes the selected item in the [Rates](super::super)' List.
 
 use fltk::{button::Button, image::SvgImage, prelude::*};
 

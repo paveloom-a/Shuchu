@@ -1,5 +1,5 @@
-//! The spend button deletes the selected item and
-//! subtracts its price from the total number of coins.
+//! Spend Button deletes the selected item and subtracts its price from the total number of
+//! coins.
 
 use fltk::{app, button::Button, image::SvgImage, prelude::*};
 

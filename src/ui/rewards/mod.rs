@@ -6,8 +6,6 @@
 //! - delete the existing reward;
 //! - spend coins on the selected reward
 
-pub mod edit;
-
 mod list;
 mod menubar;
 mod pane;

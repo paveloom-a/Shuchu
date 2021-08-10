@@ -6,6 +6,6 @@ mod icon;
 mod main;
 
 pub use main::main;
-pub use rewards_edit::rewards_edit;
+pub use rewards_edit::new as rewards_edit;
 
 use icon::icon;
