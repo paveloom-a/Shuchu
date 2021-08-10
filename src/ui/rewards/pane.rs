@@ -1,11 +1,14 @@
+//! The pane itself. It is supposed to be the second pane in the main window.
+
 use fltk::{group::Pack, prelude::*};
 
 use super::{list, menubar};
 use crate::channels::Channels;
-use crate::ui::app::CONSTANTS;
+use crate::ui::constants::FOCUS_PANE_HEIGHT;
 
+/// Initialize the pane
 pub fn pane(channels: &Channels) -> Pack {
-    let mut p = Pack::default().with_pos(10, 10 + CONSTANTS.focus_pane_height + 10);
+    let mut p = Pack::default().with_pos(10, 10 + FOCUS_PANE_HEIGHT + 10);
     p.set_spacing(1);
 
     // If this pane is a child of the Main Window
@@ -13,7 +16,7 @@ pub fn pane(channels: &Channels) -> Pack {
         // Set the size, excluding the pane's margins and the height taken by the Focus Pane
         p.set_size(
             w.width() - 20,
-            w.height() - 10 - CONSTANTS.focus_pane_height - 10 - 10,
+            w.height() - 10 - FOCUS_PANE_HEIGHT - 10 - 10,
         );
     }
 

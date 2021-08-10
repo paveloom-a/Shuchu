@@ -1,3 +1,5 @@
+//! Rewards' Menubar provides ways for the user to add / delete / edit / spend money on rewards.
+
 mod add_button;
 mod delete_button;
 mod divider;

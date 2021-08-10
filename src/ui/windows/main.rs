@@ -1,20 +1,27 @@
-use fltk::{prelude::*, window::Window};
+//! Main Window is the window the user sees after launching the program.
+
+use fltk::{
+    app,
+    enums::{Event, Key},
+    prelude::*,
+    window::Window,
+};
 
 use super::icon;
 use crate::channels::Channels;
 use crate::events;
-use crate::ui::{app::CONSTANTS, focus, rates, rewards};
+use crate::ui::{
+    constants::{FOCUS_PANE_HEIGHT, MAIN_WINDOW_HEIGHT, MAIN_WINDOW_WIDTH},
+    focus, rates, rewards,
+};
 
-/// Create the Main Window
+/// Initialize the Main Window
 pub fn main(channels: &Channels) -> Window {
-    let mut w = Window::new(
-        100,
-        100,
-        CONSTANTS.main_window_width,
-        CONSTANTS.main_window_height,
-        "Shuchu",
-    );
+    let mut w = Window::new(100, 100, MAIN_WINDOW_WIDTH, MAIN_WINDOW_HEIGHT, "Shuchu");
+
+    // Set the default size range
     expand(&mut w);
+
     w.set_icon(Some(icon()));
 
     // 1. Focus Pane
@@ -35,36 +42,75 @@ pub fn main(channels: &Channels) -> Window {
     w
 }
 
+/// Set a handle for the window
 fn logic<T: WindowExt + WidgetBase>(w: &mut T) {
-    w.handle(|w, ev| match ev.bits() {
-        events::MAIN_WINDOW_HIDE_THE_PANE => {
-            w.resize(w.x(), w.y(), w.w(), 10 + CONSTANTS.focus_pane_height + 10);
-            shrink(w);
-            true
+    w.handle(|w, ev| match ev {
+        // Handle shortcuts. This is done manually instead of using the `set_shortcut`
+        // method because this way associated buttons will not take focus
+        Event::KeyUp => {
+            if app::event_key() == Key::from_char('f') {
+                app::handle_main(events::TIMER_SHORTCUT).ok();
+                true
+            } else if app::event_key() == Key::from_char('r') {
+                app::handle_main(events::RATES_SHORTCUT).ok();
+                true
+            } else if app::event_key() == Key::from_char('c') {
+                app::handle_main(events::REWARDS_SHORTCUT).ok();
+                true
+            } else if app::event_key() == Key::from_char('a') {
+                app::handle_main(events::ADD_BUTTON_SHORTCUT).ok();
+                true
+            } else if app::event_key() == Key::from_char('d') {
+                app::handle_main(events::DELETE_BUTTON_SHORTCUT).ok();
+                true
+            } else if app::event_key() == Key::from_char('e') {
+                app::handle_main(events::EDIT_BUTTON_SHORTCUT).ok();
+                true
+            } else if app::event_key() == Key::from_char('s') {
+                app::handle_main(events::SPEND_BUTTON_SHORTCUT).ok();
+                true
+            } else {
+                false
+            }
         }
-        events::MAIN_WINDOW_SHOW_THE_PANE => {
-            w.resize(w.x(), w.y(), w.w(), CONSTANTS.main_window_height);
-            expand(w);
-            true
-        }
-        _ => false,
+        // In case of the
+        _ => match ev.bits() {
+            // 'Main window: hide the pane' event
+            events::MAIN_WINDOW_HIDE_THE_PANE => {
+                // Shrink the window
+                w.resize(w.x(), w.y(), w.w(), 10 + FOCUS_PANE_HEIGHT + 10);
+                // Shrink the size range
+                shrink(w);
+                true
+            }
+            events::MAIN_WINDOW_SHOW_THE_PANE => {
+                // Expand the window
+                w.resize(w.x(), w.y(), w.w(), MAIN_WINDOW_HEIGHT);
+                // Expand the size range
+                expand(w);
+                true
+            }
+            _ => false,
+        },
     });
 }
 
+/// Shrink the size range of the window
 fn shrink<T: WindowExt>(w: &mut T) {
     w.size_range(
-        CONSTANTS.main_window_width,
-        10 + CONSTANTS.focus_pane_height + 10,
-        CONSTANTS.main_window_width,
-        10 + CONSTANTS.focus_pane_height + 10,
+        MAIN_WINDOW_WIDTH,
+        10 + FOCUS_PANE_HEIGHT + 10,
+        MAIN_WINDOW_WIDTH,
+        10 + FOCUS_PANE_HEIGHT + 10,
     );
 }
 
+/// Expand the size range of the window
 fn expand<T: WindowExt>(w: &mut T) {
     w.size_range(
-        CONSTANTS.main_window_width,
-        CONSTANTS.main_window_height,
-        CONSTANTS.main_window_width,
-        CONSTANTS.main_window_height + 100,
+        MAIN_WINDOW_WIDTH,
+        MAIN_WINDOW_HEIGHT,
+        MAIN_WINDOW_WIDTH,
+        MAIN_WINDOW_HEIGHT + 100,
     );
 }

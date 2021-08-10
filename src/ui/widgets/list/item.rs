@@ -1,3 +1,7 @@
+//! List's Item is a wrapper around a string in the list.
+//!
+//! It manages its associated widget, label (the displayed string), and a selection state.
+
 use fltk::{
     draw,
     enums::{Align, Color, FrameType},
@@ -5,150 +9,171 @@ use fltk::{
     prelude::*,
 };
 use std::{
-    cell::{Ref, RefCell, RefMut},
-    ops::Range,
+    cell::{Ref, RefCell},
     rc::Rc,
 };
 
-use crate::ui::app::CONSTANTS;
-const TEXT_PADDING: i32 = 4;
+use super::{ITEM_HEIGHT, SCROLLBAR_WIDTH, TEXT_PADDING};
 
-type ItemString = Rc<RefCell<String>>;
-type ItemIsSelected = Rc<RefCell<bool>>;
-type ItemLabel = Rc<RefCell<String>>;
-
+/// An item in the List
 pub struct Item {
+    /// Associated widget
     frame: Frame,
-    string: ItemString,
-    selected: ItemIsSelected,
-    label: ItemLabel,
+    /// Contents of the item
+    string: Rc<RefCell<String>>,
+    /// Selection state
+    selected: Rc<RefCell<bool>>,
+    /// Visible (within the width of the list) part of the [`string`](Item#structfield.string)
+    label: Rc<RefCell<String>>,
 }
 
 impl Item {
+    /// Initialize a new item
     pub fn new(string: String) -> Self {
-        let mut frame = Frame::default();
-        frame.set_frame(FrameType::FlatBox);
+        // Create an item with default values
+        let mut item = Item {
+            frame: Frame::default(),
+            string: Rc::new(RefCell::new(string)),
+            selected: Rc::<RefCell<bool>>::default(),
+            label: Rc::<RefCell<String>>::default(),
+        };
 
-        let selected = ItemIsSelected::default();
-        let label = ItemLabel::default();
+        item.frame.set_frame(FrameType::FlatBox);
 
-        if let Some(ref h) = frame.parent() {
-            frame.set_size(h.w(), 20);
-            Self::update_label_for(&mut frame, &label, string.clone());
-            frame.draw({
-                let selected = Rc::clone(&selected);
-                let label = Rc::clone(&label);
+        // If the item is a child of the Holder
+        if let Some(ref h) = item.frame.parent() {
+            // Change the width of the frame and update the label
+            item.frame.set_size(h.w(), ITEM_HEIGHT);
+            item.update_label();
+
+            // Set a custom `draw` function
+            item.frame.draw({
+                let selected = Rc::clone(&item.selected);
+                let label = Rc::clone(&item.label);
                 move |f| {
+                    // Saving the draw color and reapplying it in the end is a safety measure
                     let color = draw::get_color();
+
+                    // If the item is selected
                     if *selected.borrow() {
                         draw::set_draw_color(Color::White);
-                        draw::set_font(draw::font(), 16);
                     } else {
-                        draw::set_font(draw::font(), 16);
                         draw::set_draw_color(Color::Black);
                     }
+
+                    // Draw the text within the padding box
+                    draw::set_font(draw::font(), 16);
                     draw::draw_text2(
                         &*label.borrow(),
                         f.x() + TEXT_PADDING,
                         f.y(),
-                        f.w() - 2 * TEXT_PADDING - CONSTANTS.scrollbar_width,
+                        f.w() - 2 * TEXT_PADDING - SCROLLBAR_WIDTH,
                         f.h(),
                         Align::Left,
                     );
+
                     draw::set_draw_color(color);
                 }
             });
         }
 
-        Item {
-            frame,
-            string: ItemString::new(RefCell::new(string)),
-            selected,
-            label,
-        }
+        item
     }
 
+    /// Get the frame of the item
     pub fn frame(&self) -> &Frame {
         &self.frame
     }
 
-    /// Get the y coordinate of the item
-    pub fn y(&self) -> i32 {
-        self.frame.y()
-    }
-
-    /// Get the height of the item
-    pub fn h(&self) -> i32 {
-        self.frame.h()
-    }
-
-    fn string(&self) -> Ref<String> {
+    /// Get the contents of the item
+    pub fn string(&self) -> Ref<String> {
         self.string.borrow()
     }
 
-    fn string_mut(&self) -> RefMut<String> {
-        self.string.borrow_mut()
-    }
-
+    /// Clone the contents of the item
     pub fn clone(&self) -> String {
         self.string().clone()
     }
 
+    /// Get the selection state of the item
     pub fn selected(&self) -> bool {
         *self.selected.borrow()
     }
 
-    fn selected_mut(&self) -> RefMut<bool> {
-        self.selected.borrow_mut()
+    /// Check if the item is partially or completely hidden
+    pub fn hidden(&self, completely: bool) -> bool {
+        self.frame.parent().map_or(false, |ref p| {
+            // Get the List's Scroll
+            p.parent().map_or(false, |ref s| {
+                // Return `true` if
+                if completely {
+                    self.frame.y() > s.y() + s.h() // The top border is hidden below, or
+                    || self.frame.y() + self.frame.h() < s.y() // The bottom border is hidden above
+                } else {
+                    self.frame.y() < s.y() // The top border is hidden above, or
+                    || self.frame.y() + self.frame.h() > s.y() + s.h() // The bottom border is hidden below
+                }
+            })
+        })
     }
 
-    pub fn find(&self, pat: char) -> Option<usize> {
-        self.string().find(pat)
-    }
-
+    /// Set the contents of the item to the passed string
     pub fn set(&mut self, string: String) {
-        *self.string_mut() = string.clone();
-        self.update_label(string);
+        *self.string.borrow_mut() = string;
+        self.update_label();
     }
 
-    fn update_label(&mut self, string: String) {
-        Self::update_label_for(&mut self.frame, &self.label, string)
-    }
+    /// Update the label (the visible part of the string) of the item
+    fn update_label(&mut self) {
+        // Get the copy of the item's contents
+        let string = self.string().clone();
 
-    fn update_label_for(f: &mut Frame, l: &ItemLabel, string: String) {
+        // Setting the font size is crucial for the calculation of the visible width
         draw::set_font(draw::font(), 16);
 
-        let fw = f64::from(f.w());
+        // Width of the frame, but
+        let aw = f64::from(self.frame.w())
+            // Minus the width of the text padding (meaning, from the right side)
+            - f64::from(TEXT_PADDING)
+            // Minus the scrollbar width
+            - f64::from(SCROLLBAR_WIDTH);
+        // Visible width of the string
         let sw = draw::width(&string);
+        // Visible width of the "..." string
         let dw = draw::width("...");
-        let cw = fw - f64::from(TEXT_PADDING) - f64::from(CONSTANTS.scrollbar_width);
 
-        if cw > 0.0 {
-            if sw < cw {
-                f.set_tooltip("");
-                *l.borrow_mut() = string;
+        // If the available width is positive (this is a safety measure)
+        if aw > 0.0 {
+            // If the string's width is shorter than the available width
+            if sw < aw {
+                // Disable the tooltip
+                self.frame.set_tooltip("");
+                // Set the label to the string
+                *self.label.borrow_mut() = string;
+            // Otherwise,
             } else {
-                let mut n = string.len();
-                while draw::width(&string[..n]) + dw > cw {
+                // Shorten the string until it (plus the dots) fits
+                let mut n = self.string().len();
+                while draw::width(&string[..n]) + dw > aw {
                     n -= 1;
                 }
-                f.set_tooltip(&string);
-                *l.borrow_mut() = string[..n].to_string() + "...";
+                // Set the tooltip to the string
+                self.frame.set_tooltip(&string);
+                // Set the label to the shortened string
+                *self.label.borrow_mut() = self.string()[..n].to_string() + "...";
             }
         }
     }
 
-    pub fn index(&self, index: Range<usize>) -> Ref<str> {
-        Ref::map(self.string(), |items| &items[index])
-    }
-
+    /// Select the item
     pub fn select(&mut self) {
-        *self.selected_mut() = true;
+        *self.selected.borrow_mut() = true;
         self.frame.set_color(Color::DarkBlue);
     }
 
+    /// Unselect the item
     pub fn unselect(&mut self) {
-        *self.selected_mut() = false;
+        *self.selected.borrow_mut() = false;
         self.frame.set_color(Color::BackGround);
     }
 }

@@ -1,23 +1,22 @@
-use fltk::{
-    app,
-    button::Button,
-    enums::{Event, FrameType, Key, Shortcut},
-    image::SvgImage,
-    prelude::*,
-};
+//! The delete button deletes the selected item in the [Rewards](super::super)' list.
+
+use fltk::{app, button::Button, image::SvgImage, prelude::*};
 
 use crate::events;
-use crate::ui::app::CONSTANTS;
+use crate::ui::constants::{
+    DOWN_BUTTON_FRAME_TYPE, FLAT_BUTTON_FRAME_TYPE, REWARDS_MENUBAR_HEIGHT,
+};
 use crate::ui::logic;
 
+/// Initialize the delete button
 pub fn delete_button() -> Button {
     let mut di = SvgImage::from_data(include_str!("../../../../assets/menu/minus.svg")).unwrap();
     di.scale(24, 24, true, true);
 
-    let mut db = Button::default().with_size(CONSTANTS.rewards_menubar_height, 0);
+    let mut db = Button::default().with_size(REWARDS_MENUBAR_HEIGHT, 0);
     db.set_image(Some(di));
-    db.set_frame(FrameType::FlatBox);
-    db.set_down_frame(FrameType::DownBox);
+    db.set_frame(FLAT_BUTTON_FRAME_TYPE);
+    db.set_down_frame(DOWN_BUTTON_FRAME_TYPE);
     db.set_tooltip("Delete the Reward");
 
     logic(&mut db);
@@ -25,41 +24,33 @@ pub fn delete_button() -> Button {
     db
 }
 
+/// Set a callback and a handler for the delete button
 fn logic<T: ButtonExt + WidgetBase + 'static>(db: &mut T) {
-    db.set_shortcut(Shortcut::from_char('d'));
+    // The callback is disabled by default since there
+    // is no reward selection at the start of the program
     db.set_callback(|_| {});
+    // Handle the shortcut, lock, and focus / selection events
     db.handle({
+        // This button is locked by default. Selecting an item will unlock it
         let mut lock = true;
-        let unselect_box = FrameType::FlatBox;
-        move |db, ev| match ev.bits() {
-            events::LOCK_THE_DELETE_A_REWARD_BUTTON => {
-                lock = true;
-                db.set_callback(|_| {});
-                if logic::mouse_hovering_widget(db) {
-                    logic::select_inactive(db);
-                }
-                true
-            }
-            events::UNLOCK_THE_DELETE_A_REWARD_BUTTON => {
-                lock = false;
-                db.set_callback(callback);
-                if logic::mouse_hovering_widget(db) {
-                    logic::select_active(db);
-                }
-                true
-            }
-            _ => match ev {
-                Event::KeyDown => match app::event_key() {
-                    Key::Left => logic::rp_handle_left(db, 1),
-                    Key::Right => logic::rp_handle_right(db, 1),
-                    _ => logic::handle_selection(db, ev, unselect_box, lock),
-                },
-                _ => logic::handle_selection(db, ev, unselect_box, lock),
-            },
+        move |db, ev| {
+            let bits = ev.bits();
+            logic::handle_shortcut(db, bits, events::DELETE_BUTTON_SHORTCUT)
+                || logic::handle_lock(
+                    db,
+                    &mut lock,
+                    callback,
+                    bits,
+                    events::LOCK_THE_DELETE_A_REWARD_BUTTON,
+                    events::UNLOCK_THE_DELETE_A_REWARD_BUTTON,
+                )
+                || logic::handle_button(db, ev, 1, lock)
         }
     });
 }
 
+/// The callback of the delete button when it's active
 fn callback<T: WidgetBase>(_: &mut T) {
+    // Send a signal to the Rewards' list to delete the selected reward
     app::handle_main(events::DELETE_A_REWARD).ok();
 }

@@ -1,41 +1,12 @@
+//! This module provides the app initialization function.
+
 use fltk::{
     app::{self, App},
     enums::{Color, FrameType},
     misc::Tooltip,
 };
 
-/// A struct providing access to the application's constants
-pub struct Constants {
-    pub main_window_width: i32,
-    pub main_window_height: i32,
-    pub focus_pane_height: i32,
-    pub rewards_menubar_height: i32,
-    pub rewards_edit_window_width: i32,
-    pub rewards_edit_window_height: i32,
-    pub scrollbar_width: i32,
-}
-
-impl Constants {
-    /// Get the default set of the application's constants
-    const fn default() -> Constants {
-        Constants {
-            main_window_width: 340,
-            // These 3 pixels are the 1px spacing in Rewards / Rates panes and
-            // 1px top and bottom borders of the Scroll widget in the custom List widget
-            main_window_height: 300 + 3,
-            focus_pane_height: 60,
-            rewards_menubar_height: 30,
-            rewards_edit_window_width: 320,
-            rewards_edit_window_height: 140,
-            scrollbar_width: 17,
-        }
-    }
-}
-
-/// Default set of the application's constants
-pub const CONSTANTS: Constants = Constants::default();
-
-/// Create a new App
+/// Initialize the app
 pub fn new() -> App {
     let app = App::default();
     app::background(255, 255, 255);

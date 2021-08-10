@@ -7,6 +7,7 @@ mod ui;
 
 use fltk::app;
 
+/// Run the program
 fn main() {
     // Application channels
     let channels = channels::Channels::default();
@@ -29,7 +30,7 @@ fn main() {
 
     // Start the event loop
     while app.wait() {
-        // Retranslation of signals between windows
+        // Retranslate the signals between the windows
         if let Ok(event) = channels.mw.r.try_recv() {
             app::handle_main(event).ok();
         };

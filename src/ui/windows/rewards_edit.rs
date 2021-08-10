@@ -1,22 +1,30 @@
+//! Rewards Edit window provides a way to add / edit items in the [Rewards](super::super::rewards)
+//! list.
+//!
+//! This secondary window is called by the 'Add a Reward' and 'Edit the Reward' buttons in the
+//! Rewards' Menubar.
+
 use fltk::app;
 use fltk::{prelude::*, window::Window};
 
 use super::icon;
 use crate::channels::Channels;
 use crate::events;
-use crate::ui::app::CONSTANTS;
+use crate::ui::constants::{REWARDS_EDIT_WINDOW_HEIGHT, REWARDS_EDIT_WINDOW_WIDTH};
+use crate::ui::logic;
 use crate::ui::rewards::edit;
 
-/// Create the Rewards Edit Window
+/// Initialize the Rewards Edit Window
 pub fn rewards_edit(channels: &Channels) -> Window {
     let mut w = Window::new(
         100,
         100,
-        CONSTANTS.rewards_edit_window_width,
-        CONSTANTS.rewards_edit_window_height,
+        REWARDS_EDIT_WINDOW_WIDTH,
+        REWARDS_EDIT_WINDOW_HEIGHT,
         "Add a Reward",
     )
     .center_screen();
+
     w.set_icon(Some(icon()));
     w.make_modal(true);
 
@@ -36,25 +44,36 @@ pub fn rewards_edit(channels: &Channels) -> Window {
     w
 }
 
+/// Set a handle for the window
 fn logic<T: WidgetBase>(w: &mut T, channels: &Channels) {
     w.handle({
         let r_item = channels.rewards_receive_item.r.clone();
         let s_coins = channels.rewards_receive_coins.s.clone();
         let s_reward = channels.rewards_receive_reward.s.clone();
+        // In case of the
         move |w, ev| match ev.bits() {
+            // 'Add a reward` event
             events::ADD_A_REWARD_OPEN => {
+                w.set_label("Add a Reward");
                 w.show();
                 true
             }
-            events::EDIT_A_REWARD_OPEN => {
+            // 'Edit the reward' event
+            events::EDIT_THE_REWARD_OPEN => {
+                w.set_label("Edit the Reward");
                 w.show();
+                // Get the item
                 if let Ok(item) = r_item.try_recv() {
-                    if let Some(rb_i) = item.find(')') {
-                        if let Ok(coins) = item[1..rb_i].parse::<f64>() {
-                            s_coins.try_send(coins).ok();
-                            app::handle_main(events::EDIT_A_REWARD_RECEIVE_COINS).ok();
-                            s_reward.try_send(item[(rb_i + 2)..].to_string()).ok();
-                            app::handle_main(events::EDIT_A_REWARD_RECEIVE_REWARD).ok();
+                    // Get the price and the text
+                    if let Some(price) = logic::get_price(&item) {
+                        if let Some(text) = logic::get_text(&item) {
+                            // Send the price to the Reward Edit's Coins widget
+                            s_coins.try_send(price).ok();
+                            app::handle_main(events::EDIT_THE_REWARD_RECEIVE_COINS).ok();
+
+                            // Send the text to the Reward Edit's Reward widget
+                            s_reward.try_send(text).ok();
+                            app::handle_main(events::EDIT_THE_REWARD_RECEIVE_REWARD).ok();
                         }
                     }
                 }
@@ -62,5 +81,5 @@ fn logic<T: WidgetBase>(w: &mut T, channels: &Channels) {
             }
             _ => false,
         }
-    })
+    });
 }

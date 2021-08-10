@@ -1,36 +1,45 @@
+//! List's Selected is a wrapper around an index of the selected item.
+//!
+//! Note that the counting of the items starts from 1.
+
 use std::{cell::RefCell, rc::Rc};
 
-type Index = usize;
-type IndexRc = Rc<RefCell<Index>>;
-
+/// A wrapper around an index of the selected item
 pub struct Selected {
-    selected: IndexRc,
+    /// A reference-counting pointer to an index of the selected item
+    selected: Rc<RefCell<usize>>,
 }
 
 impl Selected {
+    /// Get the default struct
     pub fn default() -> Self {
         Selected {
-            selected: IndexRc::default(),
+            selected: Rc::<RefCell<usize>>::default(),
         }
     }
 
-    pub fn get(&self) -> Index {
+    /// Get the index
+    pub fn get(&self) -> usize {
         *self.selected.borrow()
     }
 
-    pub fn index(&self) -> Index {
+    /// Get the index into a vector
+    pub fn index(&self) -> usize {
         self.get() - 1
     }
 
-    pub fn decrement(&mut self) {
-        self.set(self.get() - 1)
+    /// Decrement the index
+    pub fn decrement(&self) {
+        self.set(self.get() - 1);
     }
 
-    pub fn increment(&mut self) {
-        self.set(self.get() + 1)
+    /// Increment the index
+    pub fn increment(&self) {
+        self.set(self.get() + 1);
     }
 
-    pub fn set(&self, idx: Index) {
+    /// Set the index to the passed value
+    pub fn set(&self, idx: usize) {
         *self.selected.borrow_mut() = idx;
     }
 }
